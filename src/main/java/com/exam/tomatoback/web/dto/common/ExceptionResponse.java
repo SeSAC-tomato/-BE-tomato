@@ -5,7 +5,15 @@ import org.springframework.http.HttpStatus;
 
 @Builder
 public record ExceptionResponse(
-    HttpStatus status,
+    int status,
     String code,
     String message
-) {}
+) {
+ public static ExceptionResponse setMessage(HttpStatus status, String code, String message) {
+  return ExceptionResponse.builder()
+      .status(status.value())
+      .code(code)
+      .message(message)
+      .build();
+ }
+}
