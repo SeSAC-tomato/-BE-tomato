@@ -22,7 +22,20 @@ public enum TomatoExceptionCode {
  ), PASSWORD_MISMATCH(
          HttpStatus.BAD_REQUEST,
          "TOMATO_AUTH_003",
-         "비밀번호가 일치하지 않습니다.");
+         "비밀번호가 일치하지 않습니다."
+ ), USER_NOT_FOUND_IN_MYPAGE(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_MYPAGE_001",
+         "사용자 정보를 조회하지 못 했습니다."
+ ), PASSWORD_MISMATCH_IN_MYPAGE(
+         HttpStatus.BAD_REQUEST,
+         "TOMATO_MYPAGE_002",
+         "변경할 비밀번호가 확인비밀번호와 일치하지 않습니다."
+ ), PASSWORD_INCORRECT_IN_MYPAGE(
+         HttpStatus.BAD_REQUEST,
+         "TOMATO_MYPAGE_003",
+         "비밀번호가 일치하지 않습니다."
+ );
 
  private HttpStatus status;
  private String code;
