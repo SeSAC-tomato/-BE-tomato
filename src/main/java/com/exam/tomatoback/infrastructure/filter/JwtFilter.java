@@ -1,5 +1,6 @@
 package com.exam.tomatoback.infrastructure.filter;
 
+import com.exam.tomatoback.infrastructure.util.Constants;
 import com.exam.tomatoback.infrastructure.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,19 +24,18 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
-    private static final String TOKEN_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String authorization = request.getHeader("Authorization");
+        final String authorization = request.getHeader(Constants.AUTH_HEADER);
         final String access;
         final String username;
-        if(authorization == null || !authorization.startsWith(TOKEN_PREFIX)) {
+        if(authorization == null || !authorization.startsWith(Constants.TOKEN_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        access = authorization.substring(TOKEN_PREFIX.length());
+        access = authorization.substring(Constants.TOKEN_PREFIX.length());
         try {
             username = jwtUtil.getUsername(access);
         } catch (Exception e) {
