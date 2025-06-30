@@ -1,6 +1,7 @@
 package com.exam.tomatoback.infrastructure.config;
 
 import com.exam.tomatoback.infrastructure.filter.JwtFilter;
+import com.exam.tomatoback.infrastructure.util.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,10 +21,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
-
-    static final String[] PUBLIC_PATH = {"/api/v1/auth/**"};
-    
-    static final String[] ADMIN_PATH = {};
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -45,7 +42,7 @@ public class SecurityConfig {
 
         // 주소 인가 규칙 설정
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(PUBLIC_PATH).permitAll()
+            .requestMatchers(Constants.PUBLIC_PATH).permitAll()
             .anyRequest().authenticated()
         );
 

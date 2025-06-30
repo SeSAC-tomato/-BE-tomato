@@ -28,7 +28,7 @@ public class JwtUtil {
     ) {
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
         accessExpireMs = Duration.ofHours(accessHour).toMillis();
-        refreshExpireMs = refreshWeek * 24 * 60 * 60 * 1000;
+        refreshExpireMs = Duration.ofDays(refreshWeek).toMillis();
     }
 
     private Claims getPayload(String token) {
