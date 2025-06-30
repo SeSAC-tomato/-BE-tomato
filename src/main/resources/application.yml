@@ -19,4 +19,4 @@ spring:
       show-sql: true
       format-sql: true
   config:
-    import: classpath:tomato_db.yml, classpath:jwt-config.yml
+    import: classpath:tomato-db.yml, classpath:jwt-config.yml
