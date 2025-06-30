@@ -1,14 +1,10 @@
 package com.exam.tomatoback.post.model;
 
-import com.exam.tomatoback.user.model.Address;
-import com.exam.tomatoback.user.model.Provider;
-import com.exam.tomatoback.user.model.Role;
 import com.exam.tomatoback.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
