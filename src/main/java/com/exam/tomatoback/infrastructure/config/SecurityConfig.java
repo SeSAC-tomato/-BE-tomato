@@ -21,6 +21,10 @@ import org.springframework.stereotype.Component;
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
 
+    static final String[] PUBLIC_PATH = {"/api/v1/auth/**"};
+    
+    static final String[] ADMIN_PATH = {};
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -41,7 +45,7 @@ public class SecurityConfig {
 
         // 주소 인가 규칙 설정
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/v1/auth/**").permitAll()
+            .requestMatchers(PUBLIC_PATH).permitAll()
             .anyRequest().authenticated()
         );
 
