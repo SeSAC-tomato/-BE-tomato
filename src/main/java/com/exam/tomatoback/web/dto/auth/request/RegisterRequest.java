@@ -2,7 +2,9 @@ package com.exam.tomatoback.web.dto.auth.request;
 
 import com.exam.tomatoback.infrastructure.annotation.pass.ValidPassword;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +24,7 @@ public class RegisterRequest {
   @NotBlank
   private String passwordConfirm;
   @NotBlank
+  @Size(min = 2, max = 10)
   private String nickname;
   @NotBlank
   private String address;
