@@ -3,11 +3,9 @@ package com.exam.tomatoback.mypage.model.post;
 import com.exam.tomatoback.mypage.model.enums.Category;
 import com.exam.tomatoback.mypage.model.enums.Status;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import com.exam.tomatoback.user.model.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,6 +15,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -50,6 +49,6 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likes = new ArrayList<>();
 
-    @OneToOne(mappedBy = "post")
-    private Image image;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> images = new ArrayList<>();
 }
