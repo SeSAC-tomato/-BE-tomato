@@ -4,7 +4,7 @@ public final class Constants {
     private Constants() {}
 
     // ====== 인증 관련 경로 ======
-    public static final String[] PUBLIC_PATH = {"/api/v1/auth/**"};
+    public static final String[] PUBLIC_PATH = {"/api/v1/auth/**", "/api/v1/user/**"};
 
     public static final String[] ADMIN_PATH = {};
 
