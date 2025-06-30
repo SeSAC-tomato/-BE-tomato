@@ -43,6 +43,10 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // 공간 좌표를 사용하기 위한 의존성
+    // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-spatial
+    implementation 'org.hibernate.orm:hibernate-spatial:7.0.3.Final'
 }
 
 tasks.named('test') {
