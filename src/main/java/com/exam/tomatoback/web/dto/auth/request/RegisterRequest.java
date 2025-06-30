@@ -1,5 +1,6 @@
 package com.exam.tomatoback.web.dto.auth.request;
 
+import com.exam.tomatoback.infrastructure.annotation.pass.PasswordMatches;
 import com.exam.tomatoback.infrastructure.annotation.pass.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
@@ -14,18 +15,19 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@PasswordMatches
 public class RegisterRequest {
-  @Email
-  @NotBlank
+  @Email(message = "유효한 이메일 형식이 아닙니다.")
+  @NotBlank(message = "이메일은 필수 항목입니다.")
   private String email;
   @ValidPassword
-  @NotBlank
+  @NotBlank(message = "비밀번호는 필수 항목입니다.")
   private String password;
-  @NotBlank
+  @NotBlank(message = "비밀번호 확인은 필수 항목입니다.")
   private String passwordConfirm;
-  @NotBlank
-  @Size(min = 2, max = 10)
+  @NotBlank(message = "닉네임은 필수 항목입니다.")
+  @Size(min = 2, max = 10, message = "닉네임은 2~10자 사이어야 합니다.")
   private String nickname;
-  @NotBlank
+  @NotBlank(message = "주소는 필수 항목입니다.")
   private String address;
 }
