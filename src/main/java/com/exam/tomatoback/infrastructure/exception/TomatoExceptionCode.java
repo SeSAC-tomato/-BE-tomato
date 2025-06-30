@@ -11,7 +11,10 @@ public enum TomatoExceptionCode {
      HttpStatus.INTERNAL_SERVER_ERROR,
      "TOMATO_000",
      "알 수 없는 서버 에러가 발생하였습니다."
- );
+ ), USER_NOT_FOUND(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_001",
+         "사용자 정보를 조회하지 못 했습니다.");
 
  private HttpStatus status;
  private String code;
