@@ -5,7 +5,7 @@ import lombok.*;
 import org.locationtech.jts.geom.Point;
 
 @Entity
-@Table(name = "address")
+@Table(name = "`address`")
 @Getter
 @Setter
 @NoArgsConstructor
