@@ -30,12 +30,12 @@ public class JwtFilter extends OncePerRequestFilter {
         final String authorization = request.getHeader(Constants.AUTH_HEADER);
         final String access;
         final String username;
-        if(authorization == null || !authorization.startsWith(Constants.TOKEN_PREFIX)) {
+        if(authorization == null || !authorization.startsWith(Constants.ACCESS_TOKEN_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        access = authorization.substring(Constants.TOKEN_PREFIX.length());
+        access = authorization.substring(Constants.ACCESS_TOKEN_PREFIX.length());
         try {
             username = jwtUtil.getUsername(access);
         } catch (Exception e) {
