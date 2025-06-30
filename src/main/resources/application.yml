@@ -20,8 +20,3 @@ spring:
       format-sql: true
   config:
     import: classpath:tomato_db.yml, classpath:jwt-config.yml
-
-server:
-  servlet:
-    session:
-      timeout: 30m
