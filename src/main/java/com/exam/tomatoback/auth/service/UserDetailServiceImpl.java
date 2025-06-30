@@ -1,10 +1,9 @@
 package com.exam.tomatoback.auth.service;
 
+import com.exam.tomatoback.auth.repository.UserRepository;
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
-import com.exam.tomatoback.infrastructure.util.JwtUtil;
 import com.exam.tomatoback.user.model.User;
-import com.exam.tomatoback.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
