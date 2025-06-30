@@ -82,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtUtil.getAccessToken(userDetails);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails);
         // 생성된 토큰을 반환
-        response.setHeader(Constants.AUTH_HEADER, Constants.ACCESS_TOKEN_PREFIX + accessToken);
+        response.setHeader(Constants.AUTH_HEADER, accessToken);
         response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getToken()));
     }
 
