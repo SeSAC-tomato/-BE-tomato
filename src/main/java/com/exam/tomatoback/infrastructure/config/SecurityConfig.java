@@ -41,7 +41,7 @@ public class SecurityConfig {
 
         // 주소 인가 규칙 설정
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/api/v1/auth/**").permitAll()
             .anyRequest().authenticated()
         );
 
