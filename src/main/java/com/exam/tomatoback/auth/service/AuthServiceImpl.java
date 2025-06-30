@@ -7,6 +7,7 @@ import com.exam.tomatoback.user.model.Provider;
 import com.exam.tomatoback.user.model.Role;
 import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.repository.UserRepository;
+import com.exam.tomatoback.user.service.UserService;
 import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,17 +16,17 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder encoder;
 
     @Override
     public void register(RegisterRequest registerRequest) {
         // 이메일 중복 여부 확인
-        if(userRepository.existsByEmail(registerRequest.getEmail())) {
+        if(userService.existsByEmail(registerRequest.getEmail())) {
             throw new TomatoException(TomatoExceptionCode.DUPLICATE_USER);
         }
         // 닉네임 중복 여부 확인
-        if(userRepository.existsByNickname(registerRequest.getNickname())) {
+        if(userService.existsByNickname(registerRequest.getNickname())) {
             throw new TomatoException(TomatoExceptionCode.DUPLICATE_USER);
         }
         // 비밀번호 검증
@@ -53,6 +54,6 @@ public class AuthServiceImpl implements AuthService {
         newUser.setAddress(address);
 
         // 사용자 저장
-        userRepository.save(newUser);
+        userService.save(newUser);
     }
 }
