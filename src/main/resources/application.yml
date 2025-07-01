@@ -20,3 +20,6 @@ spring:
       format-sql: true
   config:
     import: classpath:tomato-db.yml, classpath:jwt-config.yml
+file:
+  upload:
+    dir: classpath:/static/uploads/images/
