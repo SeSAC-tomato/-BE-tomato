@@ -3,6 +3,7 @@ package com.exam.tomatoback.web.controller;
 import com.exam.tomatoback.auth.service.AuthService;
 import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
+import com.exam.tomatoback.web.dto.auth.request.NicknameCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
 import com.exam.tomatoback.web.dto.common.CommonResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,5 +34,10 @@ public class AuthController {
     @GetMapping("/email")
     public ResponseEntity<?> checkDuplicationEmail(@Valid @ModelAttribute EmailCheckRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success(service.emailCheck(request)));
+    }
+
+    @GetMapping("/nickname")
+    public ResponseEntity<?> checkDuplicationNickname(@Valid @ModelAttribute NicknameCheckRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success(service.nicknameCheck(request)));
     }
 }
