@@ -1,6 +1,13 @@
 package com.exam.tomatoback.auth.service;
 
+import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
+import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
+import com.exam.tomatoback.web.dto.auth.request.NicknameCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
+import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
+import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 public interface AuthService {
 
@@ -10,4 +17,16 @@ public interface AuthService {
      * @param registerRequest 회원 가입 정보
      */
     void register(RegisterRequest registerRequest);
+
+    /**
+     * LoginRequest를 사용해 사용자의 로그인 시 필요한 정보를 처리하며 HttpServletResponse 를 사용해 토큰 정보를 사용자에게 반환하게 됩니다.
+     *
+     * @param loginRequest 로그인 이메일 및 비밀번호
+     * @param response     토큰 정보를 넘기기 위해 필요한 변수
+     */
+    void login(LoginRequest loginRequest, HttpServletResponse response);
+
+    EmailCheckResponse emailCheck(EmailCheckRequest request);
+
+    NicknameCheckResponse nicknameCheck(NicknameCheckRequest request);
 }
