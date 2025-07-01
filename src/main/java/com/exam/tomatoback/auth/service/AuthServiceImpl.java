@@ -98,6 +98,14 @@ public class AuthServiceImpl implements AuthService {
         return EmailCheckResponse.success();
     }
 
+    @Override
+    public NicknameCheckResponse nicknameCheck(NicknameCheckRequest request) {
+        if(userService.existsByNickname(request.nickname())) {
+            return NicknameCheckResponse.fail();
+        };
+        return NicknameCheckResponse.success();
+    }
+
     private Cookie createCookie(String key, String value) {
         Cookie cookie = new Cookie(key, value);
         // 쿠키 유효시간 7일

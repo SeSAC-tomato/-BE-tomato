@@ -2,9 +2,12 @@ package com.exam.tomatoback.auth.service;
 
 import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
+import com.exam.tomatoback.web.dto.auth.request.NicknameCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
 import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
+import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 public interface AuthService {
 
@@ -24,4 +27,6 @@ public interface AuthService {
     void login(LoginRequest loginRequest, HttpServletResponse response);
 
     EmailCheckResponse emailCheck(EmailCheckRequest request);
+
+    NicknameCheckResponse nicknameCheck(@Valid NicknameCheckRequest request);
 }
