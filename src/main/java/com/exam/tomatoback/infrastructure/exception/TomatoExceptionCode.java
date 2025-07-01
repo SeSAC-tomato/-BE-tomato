@@ -22,7 +22,12 @@ public enum TomatoExceptionCode {
  ), PASSWORD_MISMATCH(
          HttpStatus.BAD_REQUEST,
          "TOMATO_AUTH_003",
-         "비밀번호가 일치하지 않습니다.");
+         "비밀번호가 일치하지 않습니다.")
+ , ASSOCIATED_USER_NOT_FOUND(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_POST_001",
+         "게시글에 연결된 사용자 정보를 조회할 수 없습니다")
+ ;
 
  private HttpStatus status;
  private String code;
