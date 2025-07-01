@@ -33,6 +33,7 @@ public class PostResponse {
         }
 
         return PostResponse.builder()
+                .id(post.getId())
                 .title(post.getTitle())
                 .price(post.getPrice())
                 .content(post.getContent())
