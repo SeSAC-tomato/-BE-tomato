@@ -28,5 +28,5 @@ public interface AuthService {
 
     EmailCheckResponse emailCheck(EmailCheckRequest request);
 
-    NicknameCheckResponse nicknameCheck(@Valid NicknameCheckRequest request);
+    NicknameCheckResponse nicknameCheck(NicknameCheckRequest request);
 }
