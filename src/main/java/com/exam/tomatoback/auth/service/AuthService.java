@@ -1,7 +1,9 @@
 package com.exam.tomatoback.auth.service;
 
+import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
 import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
+import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthService {
@@ -20,4 +22,6 @@ public interface AuthService {
      * @param response     토큰 정보를 넘기기 위해 필요한 변수
      */
     void login(LoginRequest loginRequest, HttpServletResponse response);
+
+    EmailCheckResponse emailCheck(EmailCheckRequest request);
 }

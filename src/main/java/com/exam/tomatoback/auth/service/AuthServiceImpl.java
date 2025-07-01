@@ -10,8 +10,10 @@ import com.exam.tomatoback.user.model.Provider;
 import com.exam.tomatoback.user.model.Role;
 import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.service.UserService;
+import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
 import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
+import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -84,6 +86,20 @@ public class AuthServiceImpl implements AuthService {
         // 생성된 토큰을 반환
         response.setHeader(Constants.AUTH_HEADER, accessToken);
         response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getToken()));
+    }
+
+    @Override
+    public EmailCheckResponse emailCheck(EmailCheckRequest request) {
+        if (userService.existsByEmail(request.email())) {
+            return EmailCheckResponse.builder()
+                .duplication(true)
+                .message("이미 사용중인 이메일 입니다.")
+                .build();
+        }
+        return EmailCheckResponse.builder()
+            .duplication(false)
+            .message("사용 가능한 이메일입니다.")
+            .build();
     }
 
     private Cookie createCookie(String key, String value) {
