@@ -3,20 +3,18 @@ package com.exam.tomatoback.web.dto.post;
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.post.model.Image;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ImageResponse {
     private Long id;
-    private boolean mainImage;
+    private Boolean mainImage;
     private String url;
     private String savedName;
     private String originalName;
@@ -30,7 +28,7 @@ public class ImageResponse {
 
         return ImageResponse.builder()
                 .id(image.getId())
-                .mainImage(image.isMainImage())
+                .mainImage(image.getMainImage())
                 .url(image.getUrl())
                 .savedName(image.getSavedName())
                 .originalName(image.getOriginalName())

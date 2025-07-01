@@ -19,7 +19,7 @@ public class Image {
     private Long id;
 
     @Column(nullable = false)
-    private boolean mainImage;
+    private Boolean mainImage;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="post_id", nullable=false)

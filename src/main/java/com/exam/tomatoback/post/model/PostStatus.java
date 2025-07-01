@@ -1,6 +1,6 @@
 package com.exam.tomatoback.post.model;
 
-public enum Status {
+public enum PostStatus {
         SELLING,
         BOOKED,
         END
