@@ -1,4 +1,0 @@
-database:
-  url: jdbc:mysql://localhost:3306/tomato_db
-  username: tomato_user
-  password: tomato1234
