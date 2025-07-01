@@ -20,6 +20,16 @@ public class PostCreateRequest {
         private PostStatus status;
         private ProductCategory productCategory;
         private Boolean deleted;
-        private Long userId;
-        private List<ImageResponse> images;
+
+        public Post toDomain() {
+            Post newPost = Post.builder()
+                    .title(this.title)
+                    .price(this.price)
+                    .content(this.content)
+                    .status(this.status)
+                    .productCategory(this.productCategory)
+                    .deleted(false)
+                    .build();
+            return newPost;
+        }
 }
