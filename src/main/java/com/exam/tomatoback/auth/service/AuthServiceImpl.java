@@ -12,8 +12,10 @@ import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.service.UserService;
 import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
+import com.exam.tomatoback.web.dto.auth.request.NicknameCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
 import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
+import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -91,15 +93,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public EmailCheckResponse emailCheck(EmailCheckRequest request) {
         if (userService.existsByEmail(request.email())) {
-            return EmailCheckResponse.builder()
-                .duplication(true)
-                .message("이미 사용중인 이메일 입니다.")
-                .build();
+            return EmailCheckResponse.fail();
         }
-        return EmailCheckResponse.builder()
-            .duplication(false)
-            .message("사용 가능한 이메일입니다.")
-            .build();
+        return EmailCheckResponse.success();
     }
 
     private Cookie createCookie(String key, String value) {
