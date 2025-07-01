@@ -1,9 +1,7 @@
 package com.exam.tomatoback.infrastructure.util;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ClaimsBuilder;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -12,7 +10,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Component
 public class JwtUtil {
@@ -57,7 +57,7 @@ public class JwtUtil {
     }
 
     public String getAccessToken(UserDetails userDetails) {
-        return generateToken(userDetails, accessExpireMs, "access");
+        return Constants.ACCESS_TOKEN_PREFIX + generateToken(userDetails, accessExpireMs, "access");
     }
 
     public String getRefreshToken(UserDetails userDetails) {
