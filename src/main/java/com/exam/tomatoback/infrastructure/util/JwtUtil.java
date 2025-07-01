@@ -57,7 +57,7 @@ public class JwtUtil {
     }
 
     public String getAccessToken(UserDetails userDetails) {
-        return Constants.ACCESS_TOKEN_PREFIX + generateToken(userDetails, accessExpireMs, "access");
+        return generateToken(userDetails, accessExpireMs, "access");
     }
 
     public String getRefreshToken(UserDetails userDetails) {
