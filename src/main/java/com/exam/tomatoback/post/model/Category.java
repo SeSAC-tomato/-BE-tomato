@@ -1,6 +1,11 @@
 package com.exam.tomatoback.post.model;
 
-public enum Categories {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
+public enum Category {
     DIGITAL_DEVICE("디지털 기기"),
     HOME_APPLIANCE("생활가전"),
     FURNITURE("가구/인테리어"),
@@ -9,12 +14,5 @@ public enum Categories {
 
     private final String label;
 
-    Categories(String label) {
-        this.label = label;
-    }
-
-    public String getLabel() {
-            return label;
-    }
 }
 

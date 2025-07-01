@@ -2,10 +2,15 @@ package com.exam.tomatoback.post.model;
 
 import com.exam.tomatoback.user.model.User;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.*;
 
-import java.time.LocalDateTime;
-
+@Entity
+@Table(name="post_progress")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PostProgress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

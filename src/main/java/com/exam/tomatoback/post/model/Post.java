@@ -34,11 +34,11 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private Status status;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Categories category;
+    private Category category;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
