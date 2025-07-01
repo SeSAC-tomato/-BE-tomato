@@ -1,6 +1,5 @@
 package com.exam.tomatoback.web.dto.auth.response;
 
-import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
 import lombok.Builder;
 
 /**
@@ -13,14 +12,14 @@ public record EmailCheckResponse(
     boolean duplication,
     String message
 ) {
-  public static EmailCheckResponse success() {
+  public static EmailCheckResponse unavailable() {
     return EmailCheckResponse.builder()
         .duplication(true)
         .message("이미 사용중인 이메일 입니다.")
         .build();
   }
 
-  public static EmailCheckResponse fail() {
+  public static EmailCheckResponse available() {
     return EmailCheckResponse.builder()
         .duplication(false)
         .message("사용 가능한 이메일입니다.")

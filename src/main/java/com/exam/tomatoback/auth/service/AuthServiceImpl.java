@@ -93,17 +93,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public EmailCheckResponse emailCheck(EmailCheckRequest request) {
         if (userService.existsByEmail(request.email())) {
-            return EmailCheckResponse.fail();
+            return EmailCheckResponse.unavailable();
         }
-        return EmailCheckResponse.success();
+        return EmailCheckResponse.available();
     }
 
     @Override
     public NicknameCheckResponse nicknameCheck(NicknameCheckRequest request) {
         if(userService.existsByNickname(request.nickname())) {
-            return NicknameCheckResponse.fail();
+            return NicknameCheckResponse.unavailable();
         };
-        return NicknameCheckResponse.success();
+        return NicknameCheckResponse.available();
     }
 
     private Cookie createCookie(String key, String value) {
