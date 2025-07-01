@@ -27,6 +27,10 @@ public enum TomatoExceptionCode {
          HttpStatus.NOT_FOUND,
          "TOMATO_POST_001",
          "게시글에 연결된 사용자 정보를 조회할 수 없습니다")
+ ,ASSOCIATED_POST_NOT_FOUND(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_POST_002",
+         "이미지에 연결된 게시글 정보를 조회할 수 없습니다")
  ;
 
  private HttpStatus status;

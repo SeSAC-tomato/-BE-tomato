@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,6 +23,7 @@ public class PostCreateRequest {
         private Category category;
         private boolean deleted;
         private Long userId;
+        private List<ImageResponse> images;
 
         public Post toDomain() {
             Post post = Post.builder()
