@@ -4,15 +4,12 @@ import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.post.model.Categories;
 import com.exam.tomatoback.post.model.Post;
-import com.exam.tomatoback.user.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-
-import static com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode.USER_NOT_FOUND;
 
 @Data
 @NoArgsConstructor
