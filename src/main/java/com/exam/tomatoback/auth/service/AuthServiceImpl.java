@@ -20,6 +20,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -89,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails);
         // 생성된 토큰을 반환
         response.setHeader(Constants.AUTH_HEADER, accessToken);
-        response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getToken()));
+        response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getToken(), 7L));
     }
 
     @Override
@@ -164,13 +166,31 @@ public class AuthServiceImpl implements AuthService {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails);
         // 생성된 토큰을 반환
         response.setHeader(Constants.AUTH_HEADER, accessToken);
-        response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getToken()));
+        response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getToken(), 7L));
     }
 
-    private Cookie createCookie(String key, String value) {
+    @Override
+    public void logout(HttpServletResponse response) {
+        // 1. 쿠키에 저장된 refresh_token 제거
+        response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, "", 0L));
+
+        // 2. 서버 DB에 저장된 refresh token 삭제
+        try {
+            User user = getCurrentUser();
+            refreshTokenService.deleteToken(user);
+        } catch (TomatoException e) {
+            // 유효하지 않은 사용자일 수 있으니 무시 하고 로그
+            log.info("로그아웃 요청 시 인증 정보 없음: {}", e.getMessage());
+        }
+
+        // 3. SecurityContext 삭제 (메모리 상의 인증 정보 제거)
+        SecurityContextHolder.clearContext();
+    }
+
+    private Cookie createCookie(String key, String value, Long days) {
         Cookie cookie = new Cookie(key, value);
         // 쿠키 유효시간 7일
-        cookie.setMaxAge((int) Duration.ofDays(7L).toSeconds());
+        cookie.setMaxAge((int) Duration.ofDays(days).toSeconds());
         // js 접근 차단
         cookie.setHttpOnly(true);
         // 전체 경로에서 접근 -> 프론트 주소가 생길 경우 수정

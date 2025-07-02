@@ -9,7 +9,6 @@ import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
 import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public interface AuthService {
@@ -38,4 +37,6 @@ public interface AuthService {
     UserDetails getCurrentUserDetails();
 
     void refresh(HttpServletRequest request, HttpServletResponse response);
+
+    void logout(HttpServletResponse request);
 }
