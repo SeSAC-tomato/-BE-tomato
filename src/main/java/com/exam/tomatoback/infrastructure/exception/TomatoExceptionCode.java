@@ -31,6 +31,23 @@ public enum TomatoExceptionCode {
          HttpStatus.NOT_FOUND,
          "TOMATO_POST_002",
          "이미지에 연결된 게시글 정보를 조회할 수 없습니다")
+ ,IMAGE_NOT_FOUND(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_POST_003",
+         "이미지는 반드시 1개 이상 등록되어야 합니다")
+ ,MAIN_IMAGE_NOT_FOUND(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_POST_004",
+         "대표 이미지는 반드시 표시되어야 합니다")
+ ,IMAGE_INFO_NOT_MATCH(
+         HttpStatus.INTERNAL_SERVER_ERROR,
+         "TOMATO_005",
+         "이미지와 메타데이터가 서로 맞지 않습니다."
+ ) ,IMAGE_PROCESS_FAILURE(
+         HttpStatus.INTERNAL_SERVER_ERROR,
+         "TOMATO_005",
+         "이미지를 처리하지 못했습니다"
+ )
  ;
 
  private HttpStatus status;
