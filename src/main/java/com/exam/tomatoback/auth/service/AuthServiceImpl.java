@@ -17,6 +17,7 @@ import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
 import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
 import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -106,6 +108,65 @@ public class AuthServiceImpl implements AuthService {
         return NicknameCheckResponse.available();
     }
 
+    @Override
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !authentication.isAuthenticated()) {
+            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+        }
+        Object principal = authentication.getPrincipal();
+        if(principal instanceof UserDetails userDetails) {
+            String username = userDetails.getUsername();
+            return userService.getOptionalUser(username).orElseThrow(
+                () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+            );
+        } else {
+            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+        }
+    }
+
+    @Override
+    public UserDetails getCurrentUserDetails() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !authentication.isAuthenticated()) {
+            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+        }
+        Object principal = authentication.getPrincipal();
+        if(principal instanceof UserDetails userDetails) {
+            return userDetails;
+        } else {
+            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+        }
+    }
+
+    @Override
+    public void refresh(HttpServletRequest request, HttpServletResponse response) {
+        Optional<String> refreshTokenOpt = getRefreshTokenByCookie(request);
+        if(refreshTokenOpt.isEmpty()) {
+            throw new TomatoException(TomatoExceptionCode.REFRESH_TOKEN_NOT_FOUND);
+        }
+
+        String refreshTokenString = refreshTokenOpt.get();
+
+        UserDetails userDetails = getCurrentUserDetails();
+
+        if(!jwtUtil.validate(refreshTokenString, userDetails)) {
+            throw new TomatoException(TomatoExceptionCode.INVALID_REFRESH_TOKEN);
+        }
+        // 재발급 토큰이 DB에 없을 경우
+        if(refreshTokenService.isInvalid(refreshTokenString)) {
+            throw new TomatoException(TomatoExceptionCode.INVALID_REFRESH_TOKEN);
+        }
+
+        // 재발급 토큰이 유효할 경우
+        // 접근 토큰을 재발급 후 헤더에 담아서 반환
+        String accessToken = jwtUtil.getAccessToken(userDetails);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails);
+        // 생성된 토큰을 반환
+        response.setHeader(Constants.AUTH_HEADER, accessToken);
+        response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getToken()));
+    }
+
     private Cookie createCookie(String key, String value) {
         Cookie cookie = new Cookie(key, value);
         // 쿠키 유효시간 7일
@@ -118,5 +179,16 @@ public class AuthServiceImpl implements AuthService {
         cookie.setSecure(false);
 
         return cookie;
+    }
+
+    private Optional<String> getRefreshTokenByCookie(HttpServletRequest request) {
+        if(request.getCookies() == null) return Optional.empty();
+
+        for (Cookie cookie : request.getCookies()) {
+            if(cookie.getName().equals(Constants.REFRESH_TOKEN_COOKIE_NAME)) {
+                return Optional.ofNullable(cookie.getValue());
+            }
+        }
+        return Optional.empty();
     }
 }

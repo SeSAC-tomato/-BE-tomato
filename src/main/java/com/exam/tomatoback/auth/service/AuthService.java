@@ -1,13 +1,16 @@
 package com.exam.tomatoback.auth.service;
 
+import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
 import com.exam.tomatoback.web.dto.auth.request.NicknameCheckRequest;
 import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
 import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
 import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface AuthService {
 
@@ -29,4 +32,10 @@ public interface AuthService {
     EmailCheckResponse emailCheck(EmailCheckRequest request);
 
     NicknameCheckResponse nicknameCheck(NicknameCheckRequest request);
+
+    User getCurrentUser();
+
+    UserDetails getCurrentUserDetails();
+
+    void refresh(HttpServletRequest request, HttpServletResponse response);
 }
