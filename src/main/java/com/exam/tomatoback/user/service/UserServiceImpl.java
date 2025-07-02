@@ -12,23 +12,23 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
   private final UserRepository repository;
 
-    @Override
-    public User save(User user) {
-        return repository.save(user);
-    }
+  @Override
+  public User save(User user) {
+    return repository.save(user);
+  }
 
-    @Override
-    public boolean existsByEmail(String email) {
-        return repository.existsByEmail(email);
-    }
+  @Override
+  public boolean existsByEmail(String email) {
+    return repository.existsByEmail(email);
+  }
 
-    @Override
-    public boolean existsByNickname(String nickname) {
-        return repository.existsByNickname(nickname);
-    }
+  @Override
+  public boolean existsByNickname(String nickname) {
+    return repository.existsByNickname(nickname);
+  }
 
   @Override
   public Optional<User> getOptionalUser(String email) {
     return repository.findByEmail(email);
-    }
+  }
 }
