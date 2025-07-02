@@ -21,10 +21,10 @@ public class PostProgress {
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id", nullable=false)
+    @JoinColumn(name="buyer_id", nullable=false)
     private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private PostStatus postStatus;
 }
