@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -34,11 +35,11 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private PostStatus postStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Category category;
+    private PostCategory postCategory;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -51,4 +52,9 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id", nullable=false)
     private User user;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Image> images;
+
+
 }
