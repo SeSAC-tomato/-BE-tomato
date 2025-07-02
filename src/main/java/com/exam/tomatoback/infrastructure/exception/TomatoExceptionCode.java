@@ -42,12 +42,19 @@ public enum TomatoExceptionCode {
  ,IMAGE_INFO_NOT_MATCH(
          HttpStatus.INTERNAL_SERVER_ERROR,
          "TOMATO_005",
-         "이미지와 메타데이터가 서로 맞지 않습니다."
- ) ,IMAGE_PROCESS_FAILURE(
+         "이미지와 메타데이터가 서로 맞지 않습니다.")
+ ,IMAGE_PROCESS_FAILURE(
          HttpStatus.INTERNAL_SERVER_ERROR,
          "TOMATO_005",
-         "이미지를 처리하지 못했습니다"
- )
+         "이미지를 처리하지 못했습니다")
+ ,USER_NOT_MATCH(
+         HttpStatus.INTERNAL_SERVER_ERROR,
+         "TOMATO_005",
+         "이미지를 처리하지 못했습니다")
+ ,STATUS_UPDATE_FAILURE(
+         HttpStatus.INTERNAL_SERVER_ERROR,
+         "TOMATO_005",
+         "상태를 업데이트할수 없습니다")
  ;
 
  private HttpStatus status;
