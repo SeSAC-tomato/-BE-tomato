@@ -4,7 +4,12 @@ public final class Constants {
     private Constants() {}
 
     // ====== 인증 관련 경로 ======
-    public static final String[] PUBLIC_PATH = {"/api/v1/auth/**"};
+    public static final String[] PUBLIC_PATH = {
+        "/api/v1/auth/register",    // 회원가입
+        "/api/v1/auth/login",       // 로그인
+        "/api/v1/auth/email",       // 이메일 중복 확인
+        "/api/v1/auth/nickname",    // 닉네임 중복 확인
+    };
 
     public static final String[] ADMIN_PATH = {};
 
