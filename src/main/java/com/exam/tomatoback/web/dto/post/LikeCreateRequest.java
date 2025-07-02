@@ -11,5 +11,4 @@ import lombok.*;
 @Builder
 public class LikeCreateRequest {
     Long postId;
-    Long userId;
 }

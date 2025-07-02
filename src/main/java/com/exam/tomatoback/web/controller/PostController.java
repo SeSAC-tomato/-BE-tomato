@@ -74,8 +74,8 @@ public class PostController {
 
     //충돌방지를 위해 일단 여기에 저장
     @PostMapping("/{postId}/cart")
-    public ResponseEntity<?> addFavorites(@PathVariable Long postId, @RequestBody Long userId){
-        return ResponseEntity.ok(CommonResponse.success(postService.addFavorite (postId,userId)));
+    public ResponseEntity<?> addFavorites(@PathVariable Long postId){
+        return ResponseEntity.ok(CommonResponse.success(postService.addFavorite (postId)));
     }
 
 

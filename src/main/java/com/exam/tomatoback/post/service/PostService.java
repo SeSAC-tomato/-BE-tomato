@@ -180,15 +180,12 @@ public class PostService {
 
 
     //충돌방지를 위해서 Post에 일단 생성
-    public LikeResponse addFavorite(Long postId,Long userId){
+    public LikeResponse addFavorite(Long postId){
         Post favoritePost = postRepository.findByIdAndDeletedFalse(postId)
                 .orElseThrow(() -> new TomatoException(
                         TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
         User currentUser = getCurrentUser();
-        userId = currentUser.getId();
-        if(!userId.equals(userId)){
-            throw new TomatoException(TomatoExceptionCode.ASSOCIATED_USER_NOT_FOUND);
-        }
+        Long userId = currentUser.getId();
 
         Like newLike = Like.builder().user(currentUser).post(favoritePost).build();
         Like savedLike = likeRepository.save(newLike);
