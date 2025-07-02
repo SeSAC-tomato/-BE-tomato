@@ -1,5 +1,6 @@
 package com.exam.tomatoback.infrastructure.config;
 
+import com.exam.tomatoback.infrastructure.util.Constants;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -13,6 +14,6 @@ public class WebConfig implements WebMvcConfigurer {
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
         .allowedHeaders("*")
         .allowCredentials(true)
-        .exposedHeaders("authorization");
+        .exposedHeaders(Constants.AUTH_HEADER);
   }
 }
