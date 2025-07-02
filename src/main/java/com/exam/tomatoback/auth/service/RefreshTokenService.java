@@ -5,4 +5,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public interface RefreshTokenService {
     RefreshToken createRefreshToken(UserDetails userDetails);
+
+    Boolean isInvalid(String refreshToken);
 }
