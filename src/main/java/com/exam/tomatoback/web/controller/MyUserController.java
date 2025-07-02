@@ -1,21 +1,32 @@
 package com.exam.tomatoback.web.controller;
 
-import com.exam.tomatoback.mypage.service.MyUserService;
+import com.exam.tomatoback.like.model.LikeSort;
+import com.exam.tomatoback.like.service.LikeService;
+import com.exam.tomatoback.user.service.UserService;
 import com.exam.tomatoback.web.dto.common.CommonResponse;
-import com.exam.tomatoback.web.dto.mypage.*;
+import com.exam.tomatoback.web.dto.like.request.CartGetRequest;
+import com.exam.tomatoback.web.dto.mypage.request.PasswordUpdateRequest;
+import com.exam.tomatoback.web.dto.mypage.request.UserUpdateRequest;
+import com.exam.tomatoback.web.dto.like.response.CartGetResponse;
+import com.exam.tomatoback.web.dto.mypage.response.PasswordUpdatedResponse;
+import com.exam.tomatoback.web.dto.mypage.response.UserResponse;
+import com.exam.tomatoback.web.dto.mypage.response.UserUpdatedResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("api/v1/user")
+@RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class MyUserController {
 
-    private final MyUserService userService   ;
+    private final UserService userService;
+    private final LikeService likeService;
 
     @GetMapping("/{userId}/profile")
-    public ResponseEntity<CommonResponse<UserResponse>> getUserById(
+    public ResponseEntity<?> getUserById(
             @PathVariable Long userId
     ){
         UserResponse response = userService.getUserById(userId);
@@ -23,7 +34,7 @@ public class MyUserController {
     }
 
     @PutMapping("/{userId}/profile")
-    public ResponseEntity<CommonResponse<UserUpdatedResponse>> updateUserById(
+    public ResponseEntity<?> updateUserById(
             @PathVariable Long userId,
             @RequestBody UserUpdateRequest request
     ){
@@ -32,11 +43,40 @@ public class MyUserController {
     }
 
     @PutMapping("/{userId}/password")
-    public ResponseEntity<CommonResponse<PasswordUpdatedResponse>> updatePasswordById(
+    public ResponseEntity<?> updatePasswordById(
             @PathVariable Long userId,
             @RequestBody PasswordUpdateRequest request
             ){
         PasswordUpdatedResponse response = userService.updatePasswordById(userId, request);
+        return ResponseEntity.ok(CommonResponse.success(response));
+    }
+
+    @GetMapping("/{userId}/cart")
+    public ResponseEntity<?> getCartById(
+            @PathVariable Long userId,
+            @RequestParam(value = "currentPage", required = false, defaultValue = "0") Integer currentPage,
+            @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
+            @RequestParam(value = "likeSort", required = false, defaultValue = "LIKED_AT") String likeSortStr
+    ){
+        System.out.println("currentPage = " + currentPage);
+        System.out.println("size = " + size);
+        System.out.println("likeSort = " + likeSortStr);
+
+        LikeSort likeSort;
+        try {
+            likeSort = LikeSort.valueOf(likeSortStr);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 정렬 기준입니다.");
+        }
+
+
+        CartGetRequest request = CartGetRequest.builder()
+                .currentPage(currentPage)
+                .size(size)
+                .likeSort(likeSort)
+                .build();
+
+        CartGetResponse response = likeService.getCartByUserId(userId, request);
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 }
