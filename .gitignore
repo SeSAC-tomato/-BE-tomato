@@ -38,3 +38,4 @@ out/
 /docker-compose.yml
 /src/main/resources/jwt-config.yml
 /src/main/resources/tomato-db.yml
+/src/main/resources/mail.yml
