@@ -22,20 +22,33 @@ public enum TomatoExceptionCode {
  ), PASSWORD_MISMATCH(
          HttpStatus.BAD_REQUEST,
          "TOMATO_AUTH_003",
-         "비밀번호가 일치하지 않습니다."
- ), USER_NOT_FOUND_IN_MYPAGE(
+         "비밀번호가 일치하지 않습니다.")
+ , ASSOCIATED_USER_NOT_FOUND(
          HttpStatus.NOT_FOUND,
-         "TOMATO_MYPAGE_001",
-         "사용자 정보를 조회하지 못 했습니다."
- ), PASSWORD_MISMATCH_IN_MYPAGE(
+         "TOMATO_POST_001",
+         "게시글에 연결된 사용자 정보를 조회할 수 없습니다")
+ , USER_NOT_FOUND_IN_MYPAGE(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_USER_001",
+         "사용자 정보를 조회할 수 없습니다")
+ , PASSWORD_INCORRECT_IN_MYPAGE(
          HttpStatus.BAD_REQUEST,
-         "TOMATO_MYPAGE_002",
-         "변경할 비밀번호가 확인비밀번호와 일치하지 않습니다."
- ), PASSWORD_INCORRECT_IN_MYPAGE(
+         "TOMATO_USER_002",
+         "입력한 비밀번호가 현재 비밀번호와 일치하지 않습니다.")
+ , PASSWORD_MISMATCH_IN_MYPAGE(
          HttpStatus.BAD_REQUEST,
-         "TOMATO_MYPAGE_003",
-         "비밀번호가 일치하지 않습니다."
- );
+         "TOMATO_USER_003",
+         "입력한 변경 비밀번호가 비밀번호 확인과 일치하지 않습니다.")
+ , DUPLICATE_NICKNAME_IN_MYPAGE(
+         HttpStatus.CONFLICT,
+         "TOMATO_USER_004",
+         "이미 등록된 닉네임 입니다."
+ ), POSTS_NOT_FOUND_IN_MYPAGE(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_LIKE_001",
+         "해당 사용자의 게시글이 없습니다."
+ )
+ ;
 
  private HttpStatus status;
  private String code;
