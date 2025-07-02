@@ -1,5 +1,7 @@
 package com.exam.tomatoback.auth.service;
 
+import com.exam.tomatoback.infrastructure.exception.TomatoException;
+import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +47,7 @@ public class MailServiceImpl implements MailService {
       helper.setText(htmlContent, true);
       mailSender.send(message);
     } catch (MessagingException e) {
-      throw new RuntimeException(e);
+      throw new TomatoException(TomatoExceptionCode.EMAIL_SEND_FAILED);
     }
   }
 }

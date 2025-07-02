@@ -40,7 +40,11 @@ public enum TomatoExceptionCode {
      "TOMATO_AUTH_006",
      "인증 정보를 조회할 수 없습니다."
  ),
- ;
+ EMAIL_SEND_FAILED(
+     HttpStatus.INTERNAL_SERVER_ERROR,
+     "TOMATO_AUTH_007",
+     "이메일 전송에 실패했습니다."
+ );
 
  private HttpStatus status;
  private String code;
