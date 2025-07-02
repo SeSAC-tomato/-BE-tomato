@@ -47,4 +47,10 @@ public class AuthController {
         service.refresh(request, response);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @DeleteMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        service.logout(response);
+        return ResponseEntity.ok().build();
+    }
 }
