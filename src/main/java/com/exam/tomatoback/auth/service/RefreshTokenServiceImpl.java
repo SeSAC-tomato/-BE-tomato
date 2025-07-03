@@ -35,4 +35,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             .build()
         );
     }
+
+    @Override
+    public Boolean isInvalid(String refreshToken) {
+        return !refreshTokenRepository.existsByToken(refreshToken);
+    }
+
+    @Override
+    public void deleteToken(User currentUser) {
+        refreshTokenRepository.findByUser_Id(currentUser.getId()).ifPresent(refreshTokenRepository::delete);
+    }
 }

@@ -17,8 +17,10 @@ import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
 import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
 import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,7 +30,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -87,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails);
         // 생성된 토큰을 반환
         response.setHeader(Constants.AUTH_HEADER, accessToken);
-        response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getToken()));
+        response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getToken(), 7L));
     }
 
     @Override
@@ -106,10 +110,87 @@ public class AuthServiceImpl implements AuthService {
         return NicknameCheckResponse.available();
     }
 
-    private Cookie createCookie(String key, String value) {
+    @Override
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !authentication.isAuthenticated()) {
+            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+        }
+        Object principal = authentication.getPrincipal();
+        if(principal instanceof UserDetails userDetails) {
+            String username = userDetails.getUsername();
+            return userService.getOptionalUser(username).orElseThrow(
+                () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+            );
+        } else {
+            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+        }
+    }
+
+    @Override
+    public UserDetails getCurrentUserDetails() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !authentication.isAuthenticated()) {
+            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+        }
+        Object principal = authentication.getPrincipal();
+        if(principal instanceof UserDetails userDetails) {
+            return userDetails;
+        } else {
+            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+        }
+    }
+
+    @Override
+    public void refresh(HttpServletRequest request, HttpServletResponse response) {
+        Optional<String> refreshTokenOpt = getRefreshTokenByCookie(request);
+        if(refreshTokenOpt.isEmpty()) {
+            throw new TomatoException(TomatoExceptionCode.REFRESH_TOKEN_NOT_FOUND);
+        }
+
+        String refreshTokenString = refreshTokenOpt.get();
+
+        UserDetails userDetails = getCurrentUserDetails();
+
+        if(!jwtUtil.validate(refreshTokenString, userDetails)) {
+            throw new TomatoException(TomatoExceptionCode.INVALID_REFRESH_TOKEN);
+        }
+        // 재발급 토큰이 DB에 없을 경우
+        if(refreshTokenService.isInvalid(refreshTokenString)) {
+            throw new TomatoException(TomatoExceptionCode.INVALID_REFRESH_TOKEN);
+        }
+
+        // 재발급 토큰이 유효할 경우
+        // 접근 토큰을 재발급 후 헤더에 담아서 반환
+        String accessToken = jwtUtil.getAccessToken(userDetails);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails);
+        // 생성된 토큰을 반환
+        response.setHeader(Constants.AUTH_HEADER, accessToken);
+        response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getToken(), 7L));
+    }
+
+    @Override
+    public void logout(HttpServletResponse response) {
+        // 1. 쿠키에 저장된 refresh_token 제거
+        response.addCookie(createCookie(Constants.REFRESH_TOKEN_COOKIE_NAME, "", 0L));
+
+        // 2. 서버 DB에 저장된 refresh token 삭제
+        try {
+            User user = getCurrentUser();
+            refreshTokenService.deleteToken(user);
+        } catch (TomatoException e) {
+            // 유효하지 않은 사용자일 수 있으니 무시 하고 로그
+            log.info("로그아웃 요청 시 인증 정보 없음: {}", e.getMessage());
+        }
+
+        // 3. SecurityContext 삭제 (메모리 상의 인증 정보 제거)
+        SecurityContextHolder.clearContext();
+    }
+
+    private Cookie createCookie(String key, String value, Long days) {
         Cookie cookie = new Cookie(key, value);
         // 쿠키 유효시간 7일
-        cookie.setMaxAge((int) Duration.ofDays(7L).toSeconds());
+        cookie.setMaxAge((int) Duration.ofDays(days).toSeconds());
         // js 접근 차단
         cookie.setHttpOnly(true);
         // 전체 경로에서 접근 -> 프론트 주소가 생길 경우 수정
@@ -118,5 +199,16 @@ public class AuthServiceImpl implements AuthService {
         cookie.setSecure(false);
 
         return cookie;
+    }
+
+    private Optional<String> getRefreshTokenByCookie(HttpServletRequest request) {
+        if(request.getCookies() == null) return Optional.empty();
+
+        for (Cookie cookie : request.getCookies()) {
+            if(cookie.getName().equals(Constants.REFRESH_TOKEN_COOKIE_NAME)) {
+                return Optional.ofNullable(cookie.getValue());
+            }
+        }
+        return Optional.empty();
     }
 }

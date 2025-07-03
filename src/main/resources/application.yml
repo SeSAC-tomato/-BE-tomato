@@ -1,5 +1,17 @@
 
 spring:
+  mail:
+    host: ${gmail.host}
+    port: ${gmail.port}
+    username: ${gmail.username}
+    password: ${gmail.password}
+    properties:
+      mail:
+        smtp:
+          auth: true             # SMTP 서버 인증 사용 여부 (true로 설정해야 로그인 필요)
+          timeout: 5000          # SMTP 연결 타임아웃 시간 (ms 단위)
+          starttls:
+            enable: true         # STARTTLS 명령어를 통해 보안 연결(TLS) 사용 여부
   security:
     jwt: ${jwt.secret}
     access: ${jwt.access-hour}
@@ -19,4 +31,4 @@ spring:
       show-sql: true
       format-sql: true
   config:
-    import: classpath:tomato-db.yml, classpath:jwt-config.yml
+    import: classpath:tomato-db.yml, classpath:jwt-config.yml, classpath:mail.yml

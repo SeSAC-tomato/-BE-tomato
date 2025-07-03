@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode.*;
+import static com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode.USER_NOT_FOUND_IN_MYPAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -28,20 +28,20 @@ public class UserServiceImpl implements UserService {
   private final UserRepository repository;
   private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public User save(User user) {
-        return repository.save(user);
-    }
+  @Override
+  public User save(User user) {
+    return repository.save(user);
+  }
 
-    @Override
-    public boolean existsByEmail(String email) {
-        return repository.existsByEmail(email);
-    }
+  @Override
+  public boolean existsByEmail(String email) {
+    return repository.existsByEmail(email);
+  }
 
-    @Override
-    public boolean existsByNickname(String nickname) {
-        return repository.existsByNickname(nickname);
-    }
+  @Override
+  public boolean existsByNickname(String nickname) {
+    return repository.existsByNickname(nickname);
+  }
 
   @Override
   public Optional<User> getOptionalUser(String email) {
@@ -118,4 +118,5 @@ public class UserServiceImpl implements UserService {
             .message("비밀번호가 성공적으로 변경되었습니다.")
             .build();
   }
+
 }
