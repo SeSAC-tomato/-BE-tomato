@@ -32,8 +32,6 @@ public interface AuthService {
 
     NicknameCheckResponse nicknameCheck(NicknameCheckRequest request);
 
-    User getCurrentUser();
-
     UserDetails getCurrentUserDetails();
 
     void refresh(HttpServletRequest request, HttpServletResponse response);
