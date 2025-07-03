@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum Category {
+public enum ProductCategory {
     DIGITAL_DEVICE("디지털 기기"),
     HOME_APPLIANCE("생활가전"),
     FURNITURE("가구/인테리어"),

@@ -3,18 +3,21 @@ package com.exam.tomatoback.web.dto.post;
 import com.exam.tomatoback.post.model.Post;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
 @Builder
 public class PostPageResponse {
-    private int page;
-    private int size;
-    private long totalCount;
-    private int totalPages;
+    private Integer page;
+    private Integer size;
+    private Long totalCount;
+    private Integer totalPages;
     private List<PostResponse> posts;
 
     public static PostPageResponse from( Page<Post> postPage) {
