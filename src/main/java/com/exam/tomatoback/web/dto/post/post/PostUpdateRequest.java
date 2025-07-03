@@ -16,7 +16,6 @@ public class PostUpdateRequest {
     private String title;
     private Integer price;
     private String content;
-    private PostProgress postProgress;
     private ProductCategory productCategory;
 
 
@@ -26,7 +25,6 @@ public class PostUpdateRequest {
                 .title(this.title)
                 .price(this.price)
                 .content(this.content)
-                .postProgress(this.postProgress)
                 .productCategory(this.productCategory)
                 .build();
         return newPost;

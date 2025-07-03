@@ -20,7 +20,7 @@ public class PostResponse {
     private String title;
     private Integer price;
     private String content;
-    private PostProgress postProgress;
+    private PostStatus postStatus;
     private ProductCategory productCategory;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -37,7 +37,7 @@ public class PostResponse {
                 .title(post.getTitle())
                 .price(post.getPrice())
                 .content(post.getContent())
-                .postProgress(post.getPostProgress())
+                .postStatus(post.getPostProgress().getStatus())
                 .productCategory(post.getProductCategory())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())

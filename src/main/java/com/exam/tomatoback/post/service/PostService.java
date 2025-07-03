@@ -36,8 +36,8 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final ImageRepository imageRepository;
-    private final ResourceLoader resourceLoader;
+//    private final ImageRepository imageRepository;
+//    private final ResourceLoader resourceLoader;
     private final LikeRepository likeRepository;
     private final PostProgressRepository postProgressRepository;
 
@@ -139,7 +139,6 @@ public class PostService {
         updatePost.setTitle(request.getTitle());
         updatePost.setPrice(request.getPrice());
         updatePost.setContent(request.getContent());
-        updatePost.setPostProgress(request.getPostProgress());
         updatePost.setProductCategory(request.getProductCategory());
         return PostResponse.from(postRepository.save(updatePost));
     }

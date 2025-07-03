@@ -49,6 +49,7 @@ public class PostController {
         return ResponseEntity.ok(CommonResponse.success(postService.updatePost(id, updateRequest)));
     }
 
+    //끌올
     @PutMapping("/{id}/new")
     public ResponseEntity<?> pullPost(
             @PathVariable Long id ) {

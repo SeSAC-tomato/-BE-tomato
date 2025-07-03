@@ -7,6 +7,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -49,6 +51,12 @@ public class Post {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "post", // Like 엔티티에 'post' 필드가 Post를 참조한다고 가정
+            cascade = CascadeType.ALL, // Post 삭제 시 연결된 Like도 모두 삭제
+            orphanRemoval = true // Post에서 Like가 끊어지면 Like도 삭제
+    )
+    private List<Like> likes = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id", nullable=false)

@@ -15,7 +15,6 @@ public class PostCreateRequest {
         private String title;
         private Integer price;
         private String content;
-        private PostProgress postProgress;
         private ProductCategory productCategory;
         private Boolean deleted;
 
@@ -24,7 +23,6 @@ public class PostCreateRequest {
                     .title(this.title)
                     .price(this.price)
                     .content(this.content)
-                    .postProgress(this.postProgress)
                     .productCategory(this.productCategory)
                     .deleted(false)
                     .build();
