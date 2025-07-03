@@ -26,5 +26,5 @@ public class PostProgress {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private PostStatus status;
 }

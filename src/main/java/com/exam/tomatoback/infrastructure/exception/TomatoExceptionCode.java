@@ -27,6 +27,34 @@ public enum TomatoExceptionCode {
          HttpStatus.NOT_FOUND,
          "TOMATO_POST_001",
          "게시글에 연결된 사용자 정보를 조회할 수 없습니다"
+ ),ASSOCIATED_POST_NOT_FOUND(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_POST_002",
+         "이미지에 연결된 게시글 정보를 조회할 수 없습니다"
+ ),IMAGE_NOT_FOUND(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_POST_003",
+         "이미지는 반드시 1개 이상 등록되어야 합니다"
+ ), MAIN_IMAGE_NOT_FOUND(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_POST_004",
+         "대표 이미지는 반드시 표시되어야 합니다"
+ ), IMAGE_INFO_NOT_MATCH(
+         HttpStatus.INTERNAL_SERVER_ERROR,
+         "TOMATO_POST_005",
+         "이미지와 메타데이터가 서로 맞지 않습니다."
+ ), IMAGE_PROCESS_FAILURE(
+         HttpStatus.INTERNAL_SERVER_ERROR,
+         "TOMATO_POST_006",
+         "이미지를 처리하지 못했습니다"
+ ), USER_NOT_MATCH(
+         HttpStatus.INTERNAL_SERVER_ERROR,
+         "TOMATO_POST_007",
+         "이미지를 저장하지 못했습니다"
+ ), STATUS_UPDATE_FAILURE(
+         HttpStatus.INTERNAL_SERVER_ERROR,
+         "TOMATO_POST_008",
+         "POST의 상태를 업데이트할수 없습니다"
  ), REFRESH_TOKEN_NOT_FOUND(
      HttpStatus.UNAUTHORIZED,
      "TOMATO_AUTH_004",
@@ -39,8 +67,7 @@ public enum TomatoExceptionCode {
      HttpStatus.UNAUTHORIZED,
      "TOMATO_AUTH_006",
      "인증 정보를 조회할 수 없습니다."
- ),
- EMAIL_SEND_FAILED(
+ ), EMAIL_SEND_FAILED(
      HttpStatus.INTERNAL_SERVER_ERROR,
      "TOMATO_AUTH_007",
      "이메일 전송에 실패했습니다."
