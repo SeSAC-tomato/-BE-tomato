@@ -15,9 +15,10 @@ public class LikeResponse {
     Long id;
     Long postId;
     Long userId;
+    Boolean isLiked;
     private LocalDateTime createdAt;
 
-    public static LikeResponse from(Like like) {
+    public static LikeResponse from(Like like, Boolean isLiked) {
         if( like.getPost() == null || like.getPost().getId() == null) {
             throw new TomatoException(
                     TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND);
@@ -27,6 +28,7 @@ public class LikeResponse {
                 .id(like.getId())
                 .postId(like.getPost().getId())
                 .userId(like.getUser().getId())
+                .isLiked(isLiked)
                 .createdAt(like.getCreatedAt())
                 .build();
     }

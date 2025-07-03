@@ -62,7 +62,7 @@ public class PostController {
         return ResponseEntity.ok(CommonResponse.success(postService.progressPost(id)));
     }
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost (@PathVariable Long id){
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
@@ -70,9 +70,8 @@ public class PostController {
 
     //충돌방지를 위해 일단 여기에 저장
     @PostMapping("/{postId}/cart")
-    public ResponseEntity<?> addFavorites(@PathVariable Long postId){
-        return ResponseEntity.ok(CommonResponse.success(postService.addFavorite (postId)));
+    public ResponseEntity<?> setFavorite(@PathVariable Long postId){
+        return ResponseEntity.ok(CommonResponse.success(postService.setFavorite(postId)));
     }
-
 
 }

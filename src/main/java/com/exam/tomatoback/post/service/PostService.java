@@ -184,17 +184,24 @@ public class PostService {
 
 
     //충돌방지를 위해서 Post에 일단 생성 (Like)
-    public LikeResponse addFavorite(Long postId){
-        Post favoritePost = postRepository.findByIdAndDeletedFalse(postId)
+    public LikeResponse setFavorite(Long postId){
+        Post postFavorite = postRepository.findByIdAndDeletedFalse(postId)
                 .orElseThrow(() -> new TomatoException(
                         TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
         User currentUser = getCurrentUser();
-        Long userId = currentUser.getId();
+        Optional<Like> existingLike = likeRepository.findByPostAndUser( postFavorite, currentUser);
 
-        Like newLike = Like.builder().user(currentUser).post(favoritePost).build();
-        Like savedLike = likeRepository.save(newLike);
-        return LikeResponse.from(savedLike);
+        if(existingLike.isPresent()){
+            Like likeToDelete = existingLike.get();
+            likeRepository.delete(likeToDelete);
+            return LikeResponse.from(likeToDelete, false);
+        } else {
+            Like newLike = Like.builder().user(currentUser).post(postFavorite).build();
+            Like savedLike = likeRepository.save(newLike);
+            return LikeResponse.from(savedLike, true);
+        }
     }
+
 
     //User정보 조회
     public User getCurrentUser(){
