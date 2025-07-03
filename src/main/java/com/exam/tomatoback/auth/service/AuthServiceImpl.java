@@ -113,37 +113,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || !authentication.isAuthenticated()) {
-            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
-        }
-        Object principal = authentication.getPrincipal();
-        if(principal instanceof UserDetails userDetails) {
-            String username = userDetails.getUsername();
-            return userService.getOptionalUser(username).orElseThrow(
-                () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
-            );
-        } else {
-            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
-        }
-    }
-
-    @Override
-    public UserDetails getCurrentUserDetails() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || !authentication.isAuthenticated()) {
-            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
-        }
-        Object principal = authentication.getPrincipal();
-        if(principal instanceof UserDetails userDetails) {
-            return userDetails;
-        } else {
-            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
-        }
-    }
-
-    @Override
     public void refresh(HttpServletRequest request, HttpServletResponse response) {
         Optional<String> refreshTokenOpt = getRefreshTokenByCookie(request);
         if(refreshTokenOpt.isEmpty()) {
@@ -180,7 +149,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 2. 서버 DB에 저장된 refresh token 삭제
         try {
-            User user = getCurrentUser();
+            User user = userService.getCurrentUser();
             refreshTokenService.deleteToken(user);
         } catch (TomatoException e) {
             // 유효하지 않은 사용자일 수 있으니 무시 하고 로그
