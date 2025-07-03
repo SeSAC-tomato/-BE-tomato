@@ -26,6 +26,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     public void register(RegisterRequest registerRequest) {
@@ -150,15 +152,17 @@ public class AuthServiceImpl implements AuthService {
 
         String refreshTokenString = refreshTokenOpt.get();
 
-        UserDetails userDetails = getCurrentUserDetails();
-
-        if(!jwtUtil.validate(refreshTokenString, userDetails)) {
-            throw new TomatoException(TomatoExceptionCode.INVALID_REFRESH_TOKEN);
+        if(jwtUtil.isExpired(refreshTokenString)) {
+            throw new TomatoException(TomatoExceptionCode.TOKEN_EXPIRED);
         }
         // 재발급 토큰이 DB에 없을 경우
         if(refreshTokenService.isInvalid(refreshTokenString)) {
             throw new TomatoException(TomatoExceptionCode.INVALID_REFRESH_TOKEN);
         }
+
+        User userByRefreshToken = refreshTokenService.getUserByRefreshToken(refreshTokenString);
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userByRefreshToken.getEmail());
 
         // 재발급 토큰이 유효할 경우
         // 접근 토큰을 재발급 후 헤더에 담아서 반환
