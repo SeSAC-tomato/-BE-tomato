@@ -1,6 +1,7 @@
 package com.exam.tomatoback.user.service;
 
 import com.exam.tomatoback.user.model.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import com.exam.tomatoback.web.dto.mypage.request.PasswordUpdateRequest;
 import com.exam.tomatoback.web.dto.mypage.request.UserUpdateRequest;
 import com.exam.tomatoback.web.dto.mypage.response.PasswordUpdatedResponse;
@@ -17,6 +18,10 @@ public interface UserService {
     boolean existsByNickname(String nickname);
 
     Optional<User> getOptionalUser(String email);
+
+    User getCurrentUser();
+
+    UserDetails getCurrentUserDetails();
 
     // userId 로 사용자 정보 조회
     UserResponse getUserById(Long id);

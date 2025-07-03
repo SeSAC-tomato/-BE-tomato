@@ -25,13 +25,13 @@ public class Post {
     private String title;
 
     @Column(nullable = false)
-    private int price;
+    private Integer price;
 
     @Column(nullable = false)
     private String content;
 
     @Column(nullable = false)
-    private boolean deleted;
+    private Boolean deleted;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -2,6 +2,8 @@ package com.exam.tomatoback.user.service;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
+import com.exam.tomatoback.infrastructure.exception.TomatoException;
+import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.user.model.Address;
 import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.repository.UserRepository;
@@ -11,6 +13,9 @@ import com.exam.tomatoback.web.dto.mypage.response.PasswordUpdatedResponse;
 import com.exam.tomatoback.web.dto.mypage.response.UserResponse;
 import com.exam.tomatoback.web.dto.mypage.response.UserUpdatedResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -63,6 +68,37 @@ public class UserServiceImpl implements UserService {
             user.getEmail(),
             address
     );
+  }
+
+  @Override
+  public User getCurrentUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+    }
+    Object principal = authentication.getPrincipal();
+    if (principal instanceof UserDetails userDetails) {
+      String username = userDetails.getUsername();
+      return getOptionalUser(username).orElseThrow(
+          () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+      );
+    } else {
+      throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+    }
+  }
+
+  @Override
+  public UserDetails getCurrentUserDetails() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+    }
+    Object principal = authentication.getPrincipal();
+    if (principal instanceof UserDetails userDetails) {
+      return userDetails;
+    } else {
+      throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+    }
   }
 
   // 마이페이지. userId로 유저 정보 변경

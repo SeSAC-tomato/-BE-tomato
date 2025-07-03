@@ -8,18 +8,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.exam.tomatoback.post.model.PostStatus;
+import com.exam.tomatoback.post.model.ProductCategory;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class PostCreateRequest {
         private String title;
-        private int price;
+        private Integer price;
         private String content;
         private PostStatus postStatus;
         private PostCategory postCategory;
-        private boolean deleted;
+        private Boolean deleted;
         private Long userId;
 
         public Post toDomain() {
