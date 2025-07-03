@@ -1,7 +1,11 @@
 package com.exam.tomatoback.infrastructure.util;
 
+import com.exam.tomatoback.infrastructure.exception.TomatoException;
+import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -14,6 +18,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class JwtUtil {
     private final SecretKey secretKey;
@@ -32,7 +37,13 @@ public class JwtUtil {
     }
 
     private Claims getPayload(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+
+        try {
+            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+        } catch (ExpiredJwtException e) {
+            log.warn("만료된 토큰 요청 감지됨: {}", token);
+            throw new TomatoException(TomatoExceptionCode.TOKEN_EXPIRED);
+        }
     }
 
     public String getUsername(String token) {

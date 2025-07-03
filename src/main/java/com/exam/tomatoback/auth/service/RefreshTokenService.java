@@ -10,4 +10,6 @@ public interface RefreshTokenService {
     Boolean isInvalid(String refreshToken);
 
     void deleteToken(User currentUser);
+
+    User getUserByRefreshToken(String token);
 }

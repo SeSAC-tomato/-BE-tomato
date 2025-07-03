@@ -45,4 +45,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public void deleteToken(User currentUser) {
         refreshTokenRepository.findByUser_Id(currentUser.getId()).ifPresent(refreshTokenRepository::delete);
     }
+
+  @Override
+  public User getUserByRefreshToken(String token) {
+    return refreshTokenRepository.findByToken(token).orElseThrow(
+        () -> new TomatoException(TomatoExceptionCode.INVALID_REFRESH_TOKEN)
+    ).getUser();
+  }
 }

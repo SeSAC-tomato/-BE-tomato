@@ -26,6 +26,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     public void register(RegisterRequest registerRequest) {
@@ -111,37 +113,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || !authentication.isAuthenticated()) {
-            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
-        }
-        Object principal = authentication.getPrincipal();
-        if(principal instanceof UserDetails userDetails) {
-            String username = userDetails.getUsername();
-            return userService.getOptionalUser(username).orElseThrow(
-                () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
-            );
-        } else {
-            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
-        }
-    }
-
-    @Override
-    public UserDetails getCurrentUserDetails() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || !authentication.isAuthenticated()) {
-            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
-        }
-        Object principal = authentication.getPrincipal();
-        if(principal instanceof UserDetails userDetails) {
-            return userDetails;
-        } else {
-            throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
-        }
-    }
-
-    @Override
     public void refresh(HttpServletRequest request, HttpServletResponse response) {
         Optional<String> refreshTokenOpt = getRefreshTokenByCookie(request);
         if(refreshTokenOpt.isEmpty()) {
@@ -150,15 +121,17 @@ public class AuthServiceImpl implements AuthService {
 
         String refreshTokenString = refreshTokenOpt.get();
 
-        UserDetails userDetails = getCurrentUserDetails();
-
-        if(!jwtUtil.validate(refreshTokenString, userDetails)) {
-            throw new TomatoException(TomatoExceptionCode.INVALID_REFRESH_TOKEN);
+        if(jwtUtil.isExpired(refreshTokenString)) {
+            throw new TomatoException(TomatoExceptionCode.TOKEN_EXPIRED);
         }
         // 재발급 토큰이 DB에 없을 경우
         if(refreshTokenService.isInvalid(refreshTokenString)) {
             throw new TomatoException(TomatoExceptionCode.INVALID_REFRESH_TOKEN);
         }
+
+        User userByRefreshToken = refreshTokenService.getUserByRefreshToken(refreshTokenString);
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userByRefreshToken.getEmail());
 
         // 재발급 토큰이 유효할 경우
         // 접근 토큰을 재발급 후 헤더에 담아서 반환
@@ -176,7 +149,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 2. 서버 DB에 저장된 refresh token 삭제
         try {
-            User user = getCurrentUser();
+            User user = userService.getCurrentUser();
             refreshTokenService.deleteToken(user);
         } catch (TomatoException e) {
             // 유효하지 않은 사용자일 수 있으니 무시 하고 로그

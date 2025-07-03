@@ -1,6 +1,7 @@
 package com.exam.tomatoback.user.service;
 
 import com.exam.tomatoback.user.model.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Optional;
 
@@ -12,4 +13,8 @@ public interface UserService {
     boolean existsByNickname(String nickname);
 
     Optional<User> getOptionalUser(String email);
+
+    User getCurrentUser();
+
+    UserDetails getCurrentUserDetails();
 }
