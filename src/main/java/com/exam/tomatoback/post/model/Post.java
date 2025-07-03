@@ -59,6 +59,6 @@ public class Post {
     private List<Like> likes = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id", nullable=false)
+    @JoinColumn(name="user_id", nullable=false, updatable=false)
     private User user;
 }

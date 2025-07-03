@@ -17,11 +17,11 @@ public class PostProgress {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="post_id", nullable=false, unique = true)
+    @JoinColumn(name="post_id", nullable=false, unique = true, updatable=false)
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id", nullable=false)
+    @JoinColumn(name="user_id", nullable=false, updatable=false)
     private User user;
 
     @Enumerated(EnumType.STRING)
