@@ -1,7 +1,10 @@
 package com.exam.tomatoback.infrastructure.filter;
 
+import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.util.Constants;
 import com.exam.tomatoback.infrastructure.util.JwtUtil;
+import com.exam.tomatoback.web.dto.common.CommonResponse;
+import com.exam.tomatoback.web.dto.common.ExceptionResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,9 +41,21 @@ public class JwtFilter extends OncePerRequestFilter {
         access = authorization.substring(Constants.ACCESS_TOKEN_PREFIX.length());
         try {
             username = jwtUtil.getUsername(access);
-        } catch (Exception e) {
-            log.warn("JWT username 추출 실패: ", e);
-            filterChain.doFilter(request, response);
+        } catch (TomatoException e) {
+            log.warn("JWT 예외 발생: {}", e.getMessage());
+
+            // JWT 관련 예외 응답 반환
+            response.setStatus(e.getStatus().value());
+            response.setContentType("application/json;charset=UTF-8");
+
+            ExceptionResponse exceptionResponse = ExceptionResponse.of(
+                e.getStatus(), e.getCode(), e.getMessage()
+            );
+
+            String json = new com.fasterxml.jackson.databind.ObjectMapper()
+                .writeValueAsString(CommonResponse.fail(exceptionResponse));
+
+            response.getWriter().write(json);
             return;
         }
 

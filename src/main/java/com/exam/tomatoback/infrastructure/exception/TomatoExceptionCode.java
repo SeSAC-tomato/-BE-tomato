@@ -44,6 +44,10 @@ public enum TomatoExceptionCode {
      HttpStatus.INTERNAL_SERVER_ERROR,
      "TOMATO_AUTH_007",
      "이메일 전송에 실패했습니다."
+ ), TOKEN_EXPIRED(
+     HttpStatus.UNAUTHORIZED,
+     "TOMATO_AUTH_008",
+     "토큰이 만료 되었습니다."
  );
 
  private HttpStatus status;
