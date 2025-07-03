@@ -2,16 +2,12 @@ package com.exam.tomatoback.web.controller;
 
 import com.exam.tomatoback.post.service.PostService;
 import com.exam.tomatoback.web.dto.common.CommonResponse;
-import com.exam.tomatoback.web.dto.post.ImageMetadataRequest;
-import com.exam.tomatoback.web.dto.post.PostCreateRequest;
-import com.exam.tomatoback.web.dto.post.PostResponse;
-import com.exam.tomatoback.web.dto.post.PostUpdateRequest;
+import com.exam.tomatoback.web.dto.post.post.PostCreateRequest;
+import com.exam.tomatoback.web.dto.post.post.PostResponse;
+import com.exam.tomatoback.web.dto.post.post.PostUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/post")
@@ -59,12 +55,11 @@ public class PostController {
         return ResponseEntity.ok(CommonResponse.success(postService.pullPost(id)));
     }
 
-    //PostDB쪽으로
-//    @PutMapping("/{id}/status")
-//    public ResponseEntity<?> changeStatus(
-//            @PathVariable Long id ) {
-//        return ResponseEntity.ok(CommonResponse.success(postService.changeStatus(id)));
-//    }
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> progressPost(
+            @PathVariable Long id ) {
+        return ResponseEntity.ok(CommonResponse.success(postService.progressPost(id)));
+    }
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost (@PathVariable Long id){

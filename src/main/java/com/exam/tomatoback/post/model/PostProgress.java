@@ -16,8 +16,8 @@ public class PostProgress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="post_id", nullable=false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="post_id", nullable=false, unique = true)
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -26,5 +26,6 @@ public class PostProgress {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PostStatus status;
+    @Builder.Default
+    private PostStatus status = PostStatus.SELLING;
 }

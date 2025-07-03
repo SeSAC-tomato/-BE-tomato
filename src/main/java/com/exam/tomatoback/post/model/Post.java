@@ -32,9 +32,11 @@ public class Post {
     @Column(nullable = false)
     private Boolean deleted;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PostStatus status;
+    @OneToOne(mappedBy = "post",
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private PostProgress postProgress;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

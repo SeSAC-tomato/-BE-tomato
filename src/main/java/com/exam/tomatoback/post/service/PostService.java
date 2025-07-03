@@ -2,36 +2,33 @@ package com.exam.tomatoback.post.service;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
-import com.exam.tomatoback.post.model.Image;
 import com.exam.tomatoback.post.model.Like;
 import com.exam.tomatoback.post.model.Post;
+import com.exam.tomatoback.post.model.PostProgress;
 import com.exam.tomatoback.post.model.PostStatus;
 import com.exam.tomatoback.post.repository.LikeRepository;
+import com.exam.tomatoback.post.repository.PostProgressRepository;
 import com.exam.tomatoback.user.model.User;
 
 import com.exam.tomatoback.post.repository.ImageRepository;
 import com.exam.tomatoback.post.repository.PostRepository;
 import com.exam.tomatoback.user.repository.UserRepository;
 
-import com.exam.tomatoback.web.dto.post.*;
-
+import com.exam.tomatoback.web.dto.post.like.LikeResponse;
+import com.exam.tomatoback.web.dto.post.post.PostCreateRequest;
+import com.exam.tomatoback.web.dto.post.post.PostResponse;
+import com.exam.tomatoback.web.dto.post.post.PostUpdateRequest;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,10 +39,11 @@ public class PostService {
     private final ImageRepository imageRepository;
     private final ResourceLoader resourceLoader;
     private final LikeRepository likeRepository;
+    private final PostProgressRepository postProgressRepository;
 
-    @Value("${file.upload.dir}")
-    private String uploadDir;
-    private static final String IMAGE_BASE_URL_PATH = "/upload/images/";
+//    @Value("${file.upload.dir}")
+//    private String uploadDir;
+//    private static final String IMAGE_BASE_URL_PATH = "/upload/images/";
 
     //Post 전체조회 (소프트 삭제 제외)
     public List<PostResponse> getAllPostDeleteFalse() {
@@ -72,6 +70,13 @@ public class PostService {
         Post post = postCreateRequest.toDomain();
         post.setUser(currentUser);
         Post savedPost = postRepository.save(post);
+        PostProgress initialPostProgress = PostProgress.builder()
+                .user(currentUser) // PostProgress에도 User 정보 연결
+                .build();
+        initialPostProgress.setPost(savedPost);
+        postProgressRepository.save(initialPostProgress);
+        post.setPostProgress(initialPostProgress);
+        Post finalPost = postRepository.save(post);
 
         //이미지 처리
 //        if (imageFiles == null || imageFiles.isEmpty()) {
@@ -122,7 +127,7 @@ public class PostService {
 //            imagesToSave.add(image);
 //        }
 //        imageRepository.saveAll(imagesToSave);
-        return PostResponse.from(savedPost);
+        return PostResponse.from(finalPost);
     }
 
 
@@ -134,7 +139,7 @@ public class PostService {
         updatePost.setTitle(request.getTitle());
         updatePost.setPrice(request.getPrice());
         updatePost.setContent(request.getContent());
-        updatePost.setStatus(request.getStatus());
+        updatePost.setPostProgress(request.getPostProgress());
         updatePost.setProductCategory(request.getProductCategory());
         return PostResponse.from(postRepository.save(updatePost));
     }
@@ -147,6 +152,21 @@ public class PostService {
         softDeletePost.setDeleted(true);
     }
 
+    //Post_Progress
+@Transactional
+    public PostResponse progressPost(Long id){
+        Post targetPost = postRepository.findByIdAndDeletedFalse(id).orElseThrow(() -> new TomatoException(
+                TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
+
+        PostStatus currentStatus = targetPost.getPostProgress().getStatus();
+        PostStatus nextStatus = currentStatus.nextStatus();
+        if(nextStatus == null){
+            throw new TomatoException(TomatoExceptionCode.STATUS_UPDATE_FAILURE);
+        }
+        targetPost.getPostProgress().setStatus(nextStatus);
+        return PostResponse.from(postRepository.save(targetPost));
+    }
+
     //끌올 (Update날짜를 갱신하여 날짜기준으로 올림? 끌올 표시를 하고 싶었다면 .. 별도의 테이블과 로직필요)
     @Transactional
     public PostResponse pullPost(Long id){
@@ -156,21 +176,6 @@ public class PostService {
         return PostResponse.from(postRepository.save(pullPost));
     }
 
-    // Status DB로 수정
-//    @Transactional
-//    public PostResponse changeStatus(Long id){
-//        Post targetPost = postRepository.findByIdAndDeletedFalse(id).orElseThrow(() -> new TomatoException(
-//                TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
-//
-//        PostStatus currentStatus = targetPost.getStatus();
-//        PostStatus nextStatus = currentStatus.nextStatus();
-//        if(nextStatus == null){
-//            throw new TomatoException(TomatoExceptionCode.STATUS_UPDATE_FAILURE);
-//        }
-//        targetPost.setStatus(nextStatus);
-//        return PostResponse.from(postRepository.save(targetPost));
-//    }
-
     //일부조회 (이미지 포함, 소프트 삭제제외)
     public PostResponse getPostByIdDeleteFalse(Long id) {
          return postRepository.findByIdAndDeletedFalse(id).map(PostResponse::from)
@@ -179,7 +184,7 @@ public class PostService {
     }
 
 
-    //충돌방지를 위해서 Post에 일단 생성
+    //충돌방지를 위해서 Post에 일단 생성 (Like)
     public LikeResponse addFavorite(Long postId){
         Post favoritePost = postRepository.findByIdAndDeletedFalse(postId)
                 .orElseThrow(() -> new TomatoException(
@@ -209,5 +214,4 @@ public class PostService {
             throw new TomatoException(TomatoExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
