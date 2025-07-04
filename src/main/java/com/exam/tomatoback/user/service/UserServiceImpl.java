@@ -51,13 +51,19 @@ public class UserServiceImpl implements UserService {
   @Override
   public Optional<User> getOptionalUser(String email) {
     return repository.findByEmail(email);
-    }
+  }
 
 
-    // 마이페이지. userId로 유저 정보 조회해서 응답
+  // 마이페이지. userId로 유저 정보 조회해서 응답
   @Override
   public UserResponse getUserById(Long userId) {
+
+//    User certifiedUserId = getCurrentUser();
+//
+//    if (certifiedUserId.equals(userId)) { throw new TomatoException(TomatoExceptionCode.USER_MISMATCH_IN_MYPAGE);}
     User user = repository.findById(userId).orElseThrow(()-> new TomatoException(USER_NOT_FOUND_IN_MYPAGE));
+
+
 
     String address = null;
     if(user.getAddress() != null) {
@@ -100,16 +106,38 @@ public class UserServiceImpl implements UserService {
       throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
     }
   }
+//  @Override
+//  public User getCurrentUser() {
+//    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//    if(authentication == null || !authentication.isAuthenticated()) {
+//      throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+//    }
+//    Object principal = authentication.getPrincipal();
+//    if(principal instanceof UserDetails userDetails) {
+//      String username = userDetails.getUsername();
+//      return repository.findByEmail(username).orElseThrow(
+//              () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+//      );
+//    } else {
+//      throw new TomatoException(TomatoExceptionCode.UNABLE_AUTH_INFO);
+//    }
+//  }
+
+  @Override
+  public User getUserByUserDetails(UserDetails userDetails) {
+    return getOptionalUser(userDetails.getUsername()).orElseThrow(
+            () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+    );
+  }
 
   // 마이페이지. userId로 유저 정보 변경
   @Transactional
   @Override
   public UserUpdatedResponse updateUserById(Long userId, UserUpdateRequest request) {
 
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-//    CertifiedUserId = userDetails.get
+//    User certifiedUserId = getCurrentUser();
+//
+//    if (!certifiedUserId.equals(userId)) { throw new TomatoException(TomatoExceptionCode.USER_MISMATCH_IN_MYPAGE);}
 
     User user = repository.findById(userId).orElseThrow(()-> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND_IN_MYPAGE));
 
@@ -136,6 +164,10 @@ public class UserServiceImpl implements UserService {
   @Transactional
   @Override
   public PasswordUpdatedResponse updatePasswordById(Long userId, PasswordUpdateRequest request) {
+//    User certifiedUserId = getCurrentUser();
+//
+//    if (!certifiedUserId.equals(userId)) { throw new TomatoException(TomatoExceptionCode.USER_MISMATCH_IN_MYPAGE);}
+
     User user = repository.findById(userId).orElseThrow(()-> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND_IN_MYPAGE));
 
     // 1. 현재 비밀번호가 맞는지 확인
