@@ -29,11 +29,6 @@ public class PostDetailResponse {
     private List<ImageResponse> images;
 
     public static PostDetailResponse from(Post post, List<Image> images) {
-        if( post.getUser() == null || post.getUser().getId() == null) {
-            throw new TomatoException(
-                    TomatoExceptionCode.ASSOCIATED_USER_NOT_FOUND);
-        }
-
         List<ImageResponse> imagesResponses = images.stream()
                 .map(ImageResponse::from)
                 .toList();

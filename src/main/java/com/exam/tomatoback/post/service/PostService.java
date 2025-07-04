@@ -16,9 +16,11 @@ import com.exam.tomatoback.user.repository.UserRepository;
 
 import com.exam.tomatoback.web.dto.post.like.LikeResponse;
 import com.exam.tomatoback.web.dto.post.post.PostCreateRequest;
+import com.exam.tomatoback.web.dto.post.post.PostResponeWithOwner;
 import com.exam.tomatoback.web.dto.post.post.PostResponse;
 import com.exam.tomatoback.web.dto.post.post.PostUpdateRequest;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -51,8 +53,8 @@ public class PostService {
     }
 
     //Post 개별조회 (소프트 삭제제외)
-    public PostResponse getPostById(Long id) {
-       return postRepository.findByIdAndDeletedFalse(id).map(PostResponse::from)
+    public PostResponeWithOwner getPostById(Long id) {
+       return postRepository.findByIdAndDeletedFalse(id).map(PostResponeWithOwner::from)
                 .orElseThrow(() -> new TomatoException(
                         TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
     }

@@ -7,6 +7,7 @@ import com.exam.tomatoback.web.dto.post.post.PostResponse;
 import com.exam.tomatoback.web.dto.post.post.PostUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,8 +24,10 @@ public class PostController {
     }
 
     //Post개별조회
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable Long id) {
+        PostResponse post = postService.getPostByIdDeleteFalse(id);
         return ResponseEntity.ok(CommonResponse.success(postService.getPostByIdDeleteFalse(id)));
     }
 
@@ -36,7 +39,7 @@ public class PostController {
 //            @RequestPart(name="imageFiles", required=true) List<MultipartFile> imageFiles,
 //            @RequestPart(name="imageMetadata",required=true ) List<ImageMetadataRequest> imageMetadatas
     ){
-//         PostResponse postResponse = postService.createPost(postCreateRequest, imageFiles, imageMetadatas);
+//      PostResponse postResponse = postService.createPost(postCreateRequest, imageFiles, imageMetadatas);
         PostResponse postResponse = postService.createPost(postCreateRequest);
         return ResponseEntity.ok(CommonResponse.success(postResponse));
     }
