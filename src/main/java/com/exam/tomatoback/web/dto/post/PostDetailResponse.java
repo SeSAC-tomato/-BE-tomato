@@ -51,7 +51,7 @@ public class PostDetailResponse {
                 .title(post.getTitle())
                 .price(post.getPrice())
                 .content(post.getContent())
-                .postStatus(post.getStatus())
+                .postStatus(post.getPostStatus())
                 .productCategory(post.getProductCategory())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
