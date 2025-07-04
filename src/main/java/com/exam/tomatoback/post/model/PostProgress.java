@@ -16,12 +16,12 @@ public class PostProgress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="post_id", nullable=false)
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="buyer_id", nullable=false)
+    @JoinColumn(name="buyer_id", nullable=true)
     private User user;
 
     @Enumerated(EnumType.STRING)
