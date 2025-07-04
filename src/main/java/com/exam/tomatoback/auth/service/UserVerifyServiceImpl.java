@@ -36,14 +36,14 @@ public class UserVerifyServiceImpl implements UserVerifyService {
   }
 
   @Override
-  public UserVerify verify(VerifyRequest request) {
+  public UserVerify verify(VerifyRequest request, Boolean expiredCheck) {
     UserVerify userVerify = userVerifyRepository.findByToken(request.token()).orElseThrow(
         () -> new TomatoException(TomatoExceptionCode.INVALID_VERIFY_TOKEN)
     );
     if (!userVerify.getUser().getEmail().equalsIgnoreCase(request.email())) {
       throw new TomatoException(TomatoExceptionCode.INVALID_VERIFY_USER);
     }
-    if (userVerify.getExpiresAt().isBefore(Instant.now())) {
+    if(expiredCheck && userVerify.getExpiresAt().isBefore(Instant.now())) {
       throw new TomatoException(TomatoExceptionCode.VERIFY_TOKEN_EXPIRED);
     }
 
