@@ -21,7 +21,7 @@ public class MailServiceImpl implements MailService {
   @Override
   public void sendEmailVerify(String email, String nickname) {
     String token = UUID.randomUUID().toString();
-    String verifyUrl = "/verify/email?token=" + token;
+    String verifyUrl = "http://localhost:3000/verify/email?token=" + token + "&email=" + email;
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
