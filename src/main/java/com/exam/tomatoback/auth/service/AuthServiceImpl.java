@@ -169,7 +169,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void verify(VerifyRequest request) {
         // 넘어온 토큰과 해당 사용자의 일치 여부와 타입 일치 여부 확인
-        UserVerify verify = userVerifyService.verify(request);
+        UserVerify verify = userVerifyService.verify(request, true);
         User user = userService.getOptionalUser(request.email()).orElseThrow(
             () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
         );
@@ -178,6 +178,19 @@ public class AuthServiceImpl implements AuthService {
 
         // 인증 토큰 삭제
         userVerifyService.delete(verify);
+    }
+
+    @Override
+    public void reverify(VerifyRequest request) {
+        // 토큰 만료를 제외한 인증 정보 검증
+        userVerifyService.verify(request, false);
+
+        // 사용자 조회
+        User user = userService.getOptionalUser(request.email()).orElseThrow(
+            () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+        );
+        // 인증 메일 재전송
+        mailService.sendEmailVerify(user.getEmail(), user.getNickname());
     }
 
     private Cookie createCookie(String key, String value, Long days) {

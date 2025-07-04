@@ -32,4 +32,6 @@ public interface AuthService {
     void logout(HttpServletResponse request);
 
     void verify(VerifyRequest request);
+
+    void reverify(VerifyRequest request);
 }
