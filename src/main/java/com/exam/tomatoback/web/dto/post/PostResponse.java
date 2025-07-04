@@ -2,7 +2,7 @@ package com.exam.tomatoback.web.dto.post;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
-import com.exam.tomatoback.post.model.PostCategory;
+import com.exam.tomatoback.post.model.ProductCategory;
 import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.post.model.PostStatus;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ public class PostResponse {
     private Integer price;
     private String content;
     private PostStatus postStatus;
-    private PostCategory postCategory;
+    private ProductCategory productCategory;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long userId;
@@ -43,7 +43,7 @@ public class PostResponse {
                 .price(post.getPrice())
                 .content(post.getContent())
                 .postStatus(post.getPostStatus())
-                .postCategory(post.getPostCategory())
+                .productCategory(post.getProductCategory())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .userId(post.getUser().getId())
