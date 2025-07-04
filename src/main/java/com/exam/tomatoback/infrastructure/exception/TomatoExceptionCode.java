@@ -132,6 +132,10 @@ public enum TomatoExceptionCode {
      HttpStatus.BAD_REQUEST,
      "TOMATO_AUTH_012",
      "유효하지 않은 인증 타입입니다."
+ ), ALREADY_USER(
+     HttpStatus.BAD_REQUEST,
+     "TOMATO_AUTH_013",
+     "이미 인증된 사용자 입니다."
  );
 
  private HttpStatus status;

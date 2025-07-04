@@ -168,11 +168,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void verify(VerifyRequest request) {
-        // 넘어온 토큰과 해당 사용자의 일치 여부와 타입 일치 여부 확인
-        UserVerify verify = userVerifyService.verify(request, true);
+        // 인증할 사용자의 정보 조회
         User user = userService.getOptionalUser(request.email()).orElseThrow(
             () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
         );
+        // 이미 인증된 사용자의 경우 이미 인증이 되었다고 로그인 하라고 반환
+        if (user.getVerify()) {
+            throw new TomatoException(TomatoExceptionCode.ALREADY_USER);
+        }
+        // 넘어온 토큰과 해당 사용자의 일치 여부와 타입 일치 여부 확인
+        UserVerify verify = userVerifyService.verify(request, true);
         // 인증된 사용자로 수정을 해주고
         user.setVerify(true);
 
