@@ -10,7 +10,10 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class MyPageHistoryResponse {
+    private Long totalSellingPosts;
+    private Long totalEndPosts;
     private MyPostsPageResponse sellingPosts;
     private MyPostsPageResponse endPosts;
+
 }
 
