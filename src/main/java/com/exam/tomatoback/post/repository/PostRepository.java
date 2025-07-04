@@ -62,22 +62,22 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("""
     SELECT p
-    FROM Posts p
-    JOIN Post_Progress pp ON p.id = pp.post.id
-    WHERE pp.buyer.id = :userId
-    AND pp.post_status = 'SELLING'
-    ORDER BY p.updated_at desc
+    FROM Post p
+    JOIN PostProgress pp ON p.id = pp.post.id
+    WHERE p.user.id = :userId
+    AND pp.postStatus = 'SELLING'
+    ORDER BY p.updatedAt desc
     
 """)
     Page<Post> findSellingPostsByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("""
     SELECT p
-    FROM Posts p
-    JOIN Post_Progress pp ON p.id = pp.post.id
-    WHERE pp.buyer.id = :userId
-    AND pp.post_status = 'END'
-    ORDER BY p.updated_at desc
+    FROM Post p
+    JOIN PostProgress pp ON p.id = pp.post.id
+    WHERE pp.user.id = :userId
+    AND pp.postStatus = 'END'
+    ORDER BY p.updatedAt desc
     
 """)
     Page<Post> findEndPostsByUserId(@Param("userId") Long userId, Pageable pageable);
