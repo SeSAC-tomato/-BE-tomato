@@ -52,6 +52,8 @@ public class MyPostsServiceImpl implements MyPostsService {
         return MyPageHistoryResponse.builder()
                 .sellingPosts(sellingPosts)
                 .endPosts(endPosts)
+                .totalSellingPosts(sellingPosts.getPageMeta().getTotalElements())
+                .totalEndPosts(endPosts.getPageMeta().getTotalElements())
                 .build();
     }
 
