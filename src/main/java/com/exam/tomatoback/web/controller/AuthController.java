@@ -56,4 +56,10 @@ public class AuthController {
         service.verify(request);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/reverify")
+    public ResponseEntity<?> userReverify(@RequestBody VerifyRequest request) {
+        service.reverify(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }
