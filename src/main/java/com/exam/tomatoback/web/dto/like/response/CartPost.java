@@ -1,6 +1,6 @@
 package com.exam.tomatoback.web.dto.like.response;
 
-import com.exam.tomatoback.post.model.PostCategory;
+import com.exam.tomatoback.post.model.ProductCategory;
 import com.exam.tomatoback.post.model.PostStatus;
 import lombok.*;
 
@@ -17,6 +17,6 @@ public class CartPost {
         private String img;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
-        private PostStatus status;
-        private PostCategory category;
+        private PostStatus postStatus;
+        private ProductCategory productCategory;
 }
