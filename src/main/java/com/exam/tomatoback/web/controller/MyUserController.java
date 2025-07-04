@@ -1,17 +1,23 @@
 package com.exam.tomatoback.web.controller;
 
-import com.exam.tomatoback.like.model.LikeSort;
+import com.exam.tomatoback.web.dto.like.request.*;
 import com.exam.tomatoback.like.service.LikeService;
+import com.exam.tomatoback.post.service.MyPostsService;
 import com.exam.tomatoback.user.service.UserService;
 import com.exam.tomatoback.web.dto.common.CommonResponse;
 import com.exam.tomatoback.web.dto.like.request.CartGetRequest;
+import com.exam.tomatoback.web.dto.like.request.LikeSort;
+import com.exam.tomatoback.web.dto.mypage.request.MyPageHistoryGetRequest;
 import com.exam.tomatoback.web.dto.mypage.request.PasswordUpdateRequest;
 import com.exam.tomatoback.web.dto.mypage.request.UserUpdateRequest;
 import com.exam.tomatoback.web.dto.like.response.CartGetResponse;
+import com.exam.tomatoback.web.dto.mypage.response.MyPageHistoryResponse;
 import com.exam.tomatoback.web.dto.mypage.response.PasswordUpdatedResponse;
 import com.exam.tomatoback.web.dto.mypage.response.UserResponse;
 import com.exam.tomatoback.web.dto.mypage.response.UserUpdatedResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +30,7 @@ public class MyUserController {
 
     private final UserService userService;
     private final LikeService likeService;
+    private final MyPostsService myPostsService;
 
     @GetMapping("/{userId}/profile")
     public ResponseEntity<?> getUserById(
@@ -56,11 +63,8 @@ public class MyUserController {
             @PathVariable Long userId,
             @RequestParam(value = "currentPage", required = false, defaultValue = "0") Integer currentPage,
             @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
-            @RequestParam(value = "likeSort", required = false, defaultValue = "LIKED_AT") String likeSortStr
+            @RequestParam(value = "likeSort", required = false, defaultValue = "LIKE_CREATED_AT") String likeSortStr
     ){
-        System.out.println("currentPage = " + currentPage);
-        System.out.println("size = " + size);
-        System.out.println("likeSort = " + likeSortStr);
 
         LikeSort likeSort;
         try {
@@ -79,4 +83,32 @@ public class MyUserController {
         CartGetResponse response = likeService.getCartByUserId(userId, request);
         return ResponseEntity.ok(CommonResponse.success(response));
     }
+
+    @DeleteMapping("/{userId}/cart/{postId}")
+    public ResponseEntity<?> deleteCartByPostId(@PathVariable Long userId, @PathVariable Long postId){
+        likeService.deleteLike(userId, postId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{userId}/posts/myPosts")
+    public ResponseEntity<?> getMyPosts(
+            @PathVariable Long userId,
+            @RequestParam(value = "currentSellingPage", required = false, defaultValue = "0") Integer currentSellingPage,
+            @RequestParam(value = "sellingSize", required = false, defaultValue = "10") Integer sellingSize,
+            @RequestParam(value = "currentSoldPage", required = false, defaultValue = "0") Integer currentSoldPage,
+            @RequestParam(value = "soldSize", required = false, defaultValue = "10") Integer soldSize
+
+    ) {
+        MyPageHistoryGetRequest request = MyPageHistoryGetRequest.builder()
+                .currentSellingPage(currentSellingPage)
+                .currentSoldPage(currentSoldPage)
+                .sellingSize(sellingSize)
+                .soldSize(soldSize)
+                .build();
+
+        MyPageHistoryResponse response = myPostsService.getMyPostsByUserId(userId, request);
+        return ResponseEntity.ok(CommonResponse.success(response));
+
+    }
+
 }
