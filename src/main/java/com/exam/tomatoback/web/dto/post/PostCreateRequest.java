@@ -1,6 +1,6 @@
 package com.exam.tomatoback.web.dto.post;
 
-import com.exam.tomatoback.post.model.PostCategory;
+import com.exam.tomatoback.post.model.ProductCategory;
 import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.post.model.PostStatus;
 import com.exam.tomatoback.user.model.User;
@@ -22,7 +22,7 @@ public class PostCreateRequest {
         private Integer price;
         private String content;
         private PostStatus postStatus;
-        private PostCategory postCategory;
+        private ProductCategory productCategory;
         private Boolean deleted;
         private Long userId;
 
@@ -32,7 +32,7 @@ public class PostCreateRequest {
                     .price(this.price)
                     .content(this.content)
                     .postStatus(this.postStatus)
-                    .postCategory(this.postCategory)
+                    .productCategory(this.productCategory)
                     .deleted(this.deleted)
                     .build();
 
