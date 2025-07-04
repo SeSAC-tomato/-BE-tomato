@@ -1,6 +1,7 @@
 package com.exam.tomatoback.auth.service;
 
 import com.exam.tomatoback.auth.model.RefreshToken;
+import com.exam.tomatoback.auth.model.UserVerify;
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.infrastructure.util.Constants;
@@ -10,10 +11,7 @@ import com.exam.tomatoback.user.model.Provider;
 import com.exam.tomatoback.user.model.Role;
 import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.service.UserService;
-import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
-import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
-import com.exam.tomatoback.web.dto.auth.request.NicknameCheckRequest;
-import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
+import com.exam.tomatoback.web.dto.auth.request.*;
 import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
 import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
 import jakarta.servlet.http.Cookie;
@@ -29,6 +27,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -44,6 +43,7 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final UserDetailsService userDetailsService;
     private final MailService mailService;
+    private final UserVerifyService userVerifyService;
 
     @Override
     public void register(RegisterRequest registerRequest) {
@@ -163,6 +163,21 @@ public class AuthServiceImpl implements AuthService {
 
         // 3. SecurityContext 삭제 (메모리 상의 인증 정보 제거)
         SecurityContextHolder.clearContext();
+    }
+
+    @Override
+    @Transactional
+    public void verify(VerifyRequest request) {
+        // 넘어온 토큰과 해당 사용자의 일치 여부와 타입 일치 여부 확인
+        UserVerify verify = userVerifyService.verify(request);
+        User user = userService.getOptionalUser(request.email()).orElseThrow(
+            () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+        );
+        // 인증된 사용자로 수정을 해주고
+        user.setVerify(true);
+
+        // 인증 토큰 삭제
+        userVerifyService.delete(verify);
     }
 
     private Cookie createCookie(String key, String value, Long days) {
