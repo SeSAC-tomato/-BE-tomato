@@ -39,7 +39,7 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PostCategory postCategory;
+    private ProductCategory productCategory;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
