@@ -3,7 +3,7 @@ package com.exam.tomatoback.web.dto.post;
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.post.model.Image;
-import com.exam.tomatoback.post.model.Like;
+import com.exam.tomatoback.like.model.Like;
 import lombok.*;
 
 import java.time.LocalDateTime;

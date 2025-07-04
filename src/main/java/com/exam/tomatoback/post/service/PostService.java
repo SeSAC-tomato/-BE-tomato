@@ -2,11 +2,9 @@ package com.exam.tomatoback.post.service;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
-import com.exam.tomatoback.post.model.Image;
-import com.exam.tomatoback.post.model.Like;
+import com.exam.tomatoback.like.model.Like;
+import com.exam.tomatoback.like.repository.LikeRepository;
 import com.exam.tomatoback.post.model.Post;
-import com.exam.tomatoback.post.model.PostStatus;
-import com.exam.tomatoback.post.repository.LikeRepository;
 import com.exam.tomatoback.user.model.User;
 
 import com.exam.tomatoback.post.repository.ImageRepository;
@@ -19,19 +17,12 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,9 +34,9 @@ public class PostService {
     private final ResourceLoader resourceLoader;
     private final LikeRepository likeRepository;
 
-    @Value("${file.upload.dir}")
-    private String uploadDir;
-    private static final String IMAGE_BASE_URL_PATH = "/upload/images/";
+//    @Value("${file.upload.dir}")
+//    private String uploadDir;
+//    private static final String IMAGE_BASE_URL_PATH = "/upload/images/";
 
     //Post 전체조회 (소프트 삭제 제외)
     public List<PostResponse> getAllPostDeleteFalse() {
@@ -134,8 +125,8 @@ public class PostService {
         updatePost.setTitle(request.getTitle());
         updatePost.setPrice(request.getPrice());
         updatePost.setContent(request.getContent());
-        updatePost.setStatus(request.getStatus());
-        updatePost.setProductCategory(request.getProductCategory());
+        updatePost.setPostStatus(request.getPostStatus());
+        updatePost.setProductCategory(request.toDomain().getProductCategory());
         return PostResponse.from(postRepository.save(updatePost));
     }
 

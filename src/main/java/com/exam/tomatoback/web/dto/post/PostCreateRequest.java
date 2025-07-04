@@ -1,6 +1,13 @@
 package com.exam.tomatoback.web.dto.post;
 
+import com.exam.tomatoback.post.model.ProductCategory;
 import com.exam.tomatoback.post.model.Post;
+import com.exam.tomatoback.post.model.PostStatus;
+import com.exam.tomatoback.user.model.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import com.exam.tomatoback.post.model.PostStatus;
 import com.exam.tomatoback.post.model.ProductCategory;
 import lombok.*;
@@ -14,19 +21,26 @@ public class PostCreateRequest {
         private String title;
         private Integer price;
         private String content;
-        private PostStatus status;
+        private PostStatus postStatus;
         private ProductCategory productCategory;
         private Boolean deleted;
+        private Long userId;
 
         public Post toDomain() {
-            Post newPost = Post.builder()
+            Post post = Post.builder()
                     .title(this.title)
                     .price(this.price)
                     .content(this.content)
-                    .status(this.status)
+                    .postStatus(this.postStatus)
                     .productCategory(this.productCategory)
-                    .deleted(false)
+                    .deleted(this.deleted)
                     .build();
-            return newPost;
+
+            User user = User.builder()
+                    .id(this.userId)
+                    .build();
+
+            post.setUser(user);
+            return post;
         }
 }

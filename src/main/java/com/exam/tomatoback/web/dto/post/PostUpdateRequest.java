@@ -1,8 +1,8 @@
 package com.exam.tomatoback.web.dto.post;
 
 import com.exam.tomatoback.post.model.Post;
-import com.exam.tomatoback.post.model.PostStatus;
 import com.exam.tomatoback.post.model.ProductCategory;
+import com.exam.tomatoback.post.model.PostStatus;
 import lombok.*;
 
 @Getter
@@ -15,7 +15,7 @@ public class PostUpdateRequest {
     private String title;
     private Integer price;
     private String content;
-    private PostStatus status;
+    private PostStatus postStatus;
     private ProductCategory productCategory;
 
 
@@ -25,7 +25,7 @@ public class PostUpdateRequest {
                 .title(this.title)
                 .price(this.price)
                 .content(this.content)
-                .status(this.status)
+                .postStatus(this.postStatus)
                 .productCategory(this.productCategory)
                 .build();
         return newPost;
