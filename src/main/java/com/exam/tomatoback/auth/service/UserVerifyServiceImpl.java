@@ -7,8 +7,10 @@ import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.service.UserService;
+import com.exam.tomatoback.web.dto.auth.request.VerifyRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
@@ -31,5 +33,40 @@ public class UserVerifyServiceImpl implements UserVerifyService {
         // 1시간의 유효시간
         .expiresAt(Instant.now().plusSeconds(3600))
         .build());
+  }
+
+  @Override
+  public UserVerify verify(VerifyRequest request) {
+    UserVerify userVerify = userVerifyRepository.findByToken(request.token()).orElseThrow(
+        () -> new TomatoException(TomatoExceptionCode.INVALID_VERIFY_TOKEN)
+    );
+    if (!userVerify.getUser().getEmail().equalsIgnoreCase(request.email())) {
+      throw new TomatoException(TomatoExceptionCode.INVALID_VERIFY_USER);
+    }
+    if (userVerify.getExpiresAt().isBefore(Instant.now())) {
+      throw new TomatoException(TomatoExceptionCode.VERIFY_TOKEN_EXPIRED);
+    }
+
+    switch (request.type()) {
+      case EMAIL -> {
+        if (!userVerify.getVerityType().equals(VerityType.EMAIL)) {
+          throw new TomatoException(TomatoExceptionCode.VERIFY_NOT_EQUALS_TYPE);
+        }
+      }
+      case PASSWORD -> {
+        if (!userVerify.getVerityType().equals(VerityType.PASSWORD)) {
+          throw new TomatoException(TomatoExceptionCode.VERIFY_NOT_EQUALS_TYPE);
+        }
+      }
+      default -> throw new TomatoException(TomatoExceptionCode.VERIFY_NOT_EQUALS_TYPE);
+    }
+
+    return userVerify;
+  }
+
+  @Override
+  @Transactional
+  public void delete(UserVerify verify) {
+    userVerifyRepository.delete(verify);
   }
 }
