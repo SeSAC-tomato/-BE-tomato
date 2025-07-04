@@ -115,8 +115,24 @@ public enum TomatoExceptionCode {
          HttpStatus.NOT_FOUND,
          "TOMATO_LIKE_003",
          "해당 userId와 postId로 존재하는 Like가 없습니다."
- )
- ;
+ ),
+ INVALID_VERIFY_TOKEN(
+     HttpStatus.BAD_REQUEST,
+     "TOMATO_AUTH_009",
+     "유효하지 않은 토큰입니다."
+ ), INVALID_VERIFY_USER(
+     HttpStatus.BAD_REQUEST,
+     "TOMATO_AUTH_010",
+     "유효하지 않은 이메일입니다."
+ ), VERIFY_TOKEN_EXPIRED(
+     HttpStatus.BAD_REQUEST,
+     "TOMATO_AUTH_011",
+     "만료된 인증 토큰입니다."
+ ), VERIFY_NOT_EQUALS_TYPE(
+     HttpStatus.BAD_REQUEST,
+     "TOMATO_AUTH_012",
+     "유효하지 않은 인증 타입입니다."
+ );
 
  private HttpStatus status;
  private String code;
