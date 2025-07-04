@@ -1,5 +1,6 @@
 package com.exam.tomatoback.auth.service;
 
+import com.exam.tomatoback.auth.model.VerityType;
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import jakarta.mail.MessagingException;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MailServiceImpl implements MailService {
   private final JavaMailSender mailSender;
+  private final UserVerifyService userVerifyService;
 
   @Override
   public void sendEmailVerify(String email, String nickname) {
@@ -46,6 +48,8 @@ public class MailServiceImpl implements MailService {
 
       helper.setText(htmlContent, true);
       mailSender.send(message);
+
+      userVerifyService.save(email, token, VerityType.EMAIL);
     } catch (MessagingException e) {
       throw new TomatoException(TomatoExceptionCode.EMAIL_SEND_FAILED);
     }

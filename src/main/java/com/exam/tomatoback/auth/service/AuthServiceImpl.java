@@ -43,6 +43,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
     private final UserDetailsService userDetailsService;
+    private final MailService mailService;
 
     @Override
     public void register(RegisterRequest registerRequest) {
@@ -63,23 +64,27 @@ public class AuthServiceImpl implements AuthService {
 
         // 신규 사용자 정보 설정
         User newUser = User.builder()
-                .email(registerRequest.getEmail())
-                .nickname(registerRequest.getNickname())
-                .password(registerRequest.getPassword())
-                .provider(Provider.LOCAL)
-                .role(Role.USER)
-                .build();
+            .email(registerRequest.getEmail())
+            .nickname(registerRequest.getNickname())
+            .password(registerRequest.getPassword())
+            .provider(Provider.LOCAL)
+            .role(Role.USER)
+            .verify(false)
+            .build();
 
         // 주소 정보 설정
         Address address = Address.builder()
-                .user(newUser)
-                .address(registerRequest.getAddress())
-                .build();
+            .user(newUser)
+            .address(registerRequest.getAddress())
+            .build();
 
         newUser.setAddress(address);
 
         // 사용자 저장
         userService.save(newUser);
+
+        // 이메일 전송
+        mailService.sendEmailVerify(newUser.getEmail(), newUser.getNickname());
     }
 
     @Override
