@@ -1,6 +1,7 @@
 package com.exam.tomatoback.web.dto.like.response;
 
-import com.exam.tomatoback.like.model.LikeSort;
+import com.exam.tomatoback.web.dto.like.request.*;
+import com.exam.tomatoback.web.dto.like.request.LikeSort;
 import lombok.*;
 import org.hibernate.query.SortDirection;
 
