@@ -26,6 +26,9 @@ public class UserVerifyServiceImpl implements UserVerifyService {
         () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
     );
 
+    // 만약에 이미 인증 정보가 있을 경우 삭제
+    userVerifyRepository.findByUser(user).ifPresent(userVerifyRepository::delete);
+
     userVerifyRepository.save(UserVerify.builder()
         .user(user)
         .token(token)
