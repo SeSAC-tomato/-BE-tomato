@@ -55,6 +55,14 @@ public enum TomatoExceptionCode {
          HttpStatus.INTERNAL_SERVER_ERROR,
          "TOMATO_POST_008",
          "POST의 상태를 업데이트할수 없습니다"
+ ), SELLING_POSTS_NOT_FOUND_IN_MYPAGE(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_POST_009",
+         "해당 사용자의 판매중 게시글이 없습니다."
+ ), END_POSTS_NOT_FOUND_IN_MYPAGE(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_POST_010",
+         "해당 사용자의 거래완료 게시글이 없습니다."
  ), REFRESH_TOKEN_NOT_FOUND(
      HttpStatus.UNAUTHORIZED,
      "TOMATO_AUTH_004",
@@ -91,10 +99,22 @@ public enum TomatoExceptionCode {
          HttpStatus.CONFLICT,
          "TOMATO_USER_004",
          "이미 등록된 닉네임 입니다."
+ ),USER_MISMATCH_IN_MYPAGE(
+         HttpStatus.BAD_REQUEST,
+         "TOMATO_USER_005",
+         "요청으로 보낸 userId와 로그인된 유저의 userId가 일치하지 않습니다."
  ), POSTS_NOT_FOUND_IN_MYPAGE(
          HttpStatus.NOT_FOUND,
          "TOMATO_LIKE_001",
          "해당 사용자의 게시글이 없습니다."
+ ), INVALID_SORT_OPTION_IN_MYPAGE(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_LIKE_002",
+         "관심목록 정렬 기준에 없습니다."
+ ), LIKE_NOT_FOUND(
+         HttpStatus.NOT_FOUND,
+         "TOMATO_LIKE_003",
+         "해당 userId와 postId로 존재하는 Like가 없습니다."
  )
  ;
 
