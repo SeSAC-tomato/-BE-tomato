@@ -59,6 +59,29 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             nativeQuery = true
     )
     Page<Post> findLikedPostsOrderByPostLikeCountDesc(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("""
+    SELECT p
+    FROM Posts p
+    JOIN Post_Progress pp ON p.id = pp.post.id
+    WHERE pp.buyer.id = :userId
+    AND pp.post_status = 'SELLING'
+    ORDER BY p.updated_at desc
+    
+""")
+    Page<Post> findSellingPostsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("""
+    SELECT p
+    FROM Posts p
+    JOIN Post_Progress pp ON p.id = pp.post.id
+    WHERE pp.buyer.id = :userId
+    AND pp.post_status = 'END'
+    ORDER BY p.updated_at desc
+    
+""")
+    Page<Post> findEndPostsByUserId(@Param("userId") Long userId, Pageable pageable);
+
     List<Post> findAllByDeletedFalse();
     Optional<Post> findByIdAndDeletedFalse(Long id);
 }
