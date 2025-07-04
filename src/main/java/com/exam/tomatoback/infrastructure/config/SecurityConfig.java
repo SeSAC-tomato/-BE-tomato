@@ -15,7 +15,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 @Component
 @EnableWebSecurity
@@ -34,35 +38,35 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-//        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-//        config.setAllowedHeaders(Collections.singletonList("*"));
-//        config.setAllowCredentials(true);
-//        config.setExposedHeaders(Collections.singletonList("Authorization"));
-//        config.setMaxAge(3600L);
-//
-//        return request -> config;
-//    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Collections.singletonList("*"));
+        config.setAllowCredentials(true);
+        config.setExposedHeaders(Collections.singletonList("authorization"));
+        config.setMaxAge(3600L);
+
+        return request -> config;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
-        // 세션 관리
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        // jwt 필터 추가
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        // 주소 인가 규칙 설정
-        http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(Constants.PUBLIC_PATH).permitAll()
-            .anyRequest().authenticated()
-        );
+        http.csrf(AbstractHttpConfigurer::disable)
+            // 세션 관리
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // jwt 필터 추가
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 
-//        // cors 설정을 적용하기 위한 설정
-//        http.cors(cors -> cors.configurationSource(corsConfigurationSource));
+            // 주소 인가 규칙 설정
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(Constants.PUBLIC_PATH).permitAll()
+                .anyRequest().authenticated()
+            )
+            // cors 설정을 적용하기 위한 설정
+            .cors(cors -> cors.configurationSource(corsConfigurationSource));
 
         return http.build();
     }
