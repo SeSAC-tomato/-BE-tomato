@@ -1,6 +1,6 @@
 package com.exam.tomatoback.web.dto.like.request;
 
-import com.exam.tomatoback.like.model.LikeSort;
+import com.exam.tomatoback.web.dto.like.request.LikeSort;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
