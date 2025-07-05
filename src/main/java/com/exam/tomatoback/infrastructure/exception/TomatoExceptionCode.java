@@ -136,6 +136,10 @@ public enum TomatoExceptionCode {
      HttpStatus.BAD_REQUEST,
      "TOMATO_AUTH_013",
      "이미 인증된 사용자 입니다."
+ ), PASSWORD_DUPLICATED(
+     HttpStatus.CONFLICT,
+     "TOMATO_AUTH_014",
+     "이미 사용된 비밀번호입니다. 다른 비밀번호를 입력해 주세요."
  );
 
  private HttpStatus status;

@@ -228,6 +228,10 @@ public class AuthServiceImpl implements AuthService {
             .build();
         // 위 dto 를 통한 인증 정보 검증
         UserVerify verify = userVerifyService.verify(verifyRequest, true);
+        // 직전 사용한 비밀번호의 경우 409 에러가 발생하도록 하게 함
+        if (encoder.matches(request.password(), user.getPassword())) {
+            throw new TomatoException(TomatoExceptionCode.PASSWORD_DUPLICATED);
+        }
         // 검증까지 통과한 경우 비밀번호를 암호화 하여 새로 지정
         user.setPassword(encoder.encode(request.getPassword()));
 
