@@ -35,4 +35,6 @@ public interface UserService {
 
     User getUserByUserDetails(UserDetails userDetails);
 
+
+    User getUserByUserId(long userId);
 }
