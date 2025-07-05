@@ -68,4 +68,10 @@ public class AuthController {
         service.findPassword(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        service.changePassword(request);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
