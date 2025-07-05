@@ -181,14 +181,14 @@ public class AuthServiceImpl implements AuthService {
         // 넘어온 토큰과 해당 사용자의 일치 여부와 타입 일치 여부 확인
         UserVerify verify = userVerifyService.verify(request, true);
 
+        // 비밀번호 인증의 경우 토큰을 사용자가 비밀번호 수정 했을 때 삭제를 하도록 하게 해야함
         // 이메일 인증의 경우
         // 인증된 사용자로 수정을 해주고
+        // 인증 토큰 삭제
         if (request.type().equals(VerityType.EMAIL)) {
             user.setVerify(true);
+            userVerifyService.delete(verify);
         }
-
-        // 인증 토큰 삭제
-        userVerifyService.delete(verify);
     }
 
     @Override
