@@ -34,4 +34,6 @@ public interface AuthService {
     void verify(VerifyRequest request);
 
     void reverify(VerifyRequest request);
+
+    void findPassword(FindPasswordRequest request);
 }

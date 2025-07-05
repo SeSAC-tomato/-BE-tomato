@@ -2,6 +2,7 @@ package com.exam.tomatoback.auth.service;
 
 import com.exam.tomatoback.auth.model.RefreshToken;
 import com.exam.tomatoback.auth.model.UserVerify;
+import com.exam.tomatoback.auth.model.VerityType;
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.infrastructure.util.Constants;
@@ -172,14 +173,19 @@ public class AuthServiceImpl implements AuthService {
         User user = userService.getOptionalUser(request.email()).orElseThrow(
             () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
         );
+        // 인증 타입이 비밀번호가 아닌 경우에 아래 코드 실행
         // 이미 인증된 사용자의 경우 이미 인증이 되었다고 로그인 하라고 반환
-        if (user.getVerify()) {
+        if (!request.type().equals(VerityType.PASSWORD) && user.getVerify()) {
             throw new TomatoException(TomatoExceptionCode.ALREADY_USER);
         }
         // 넘어온 토큰과 해당 사용자의 일치 여부와 타입 일치 여부 확인
         UserVerify verify = userVerifyService.verify(request, true);
+
+        // 이메일 인증의 경우
         // 인증된 사용자로 수정을 해주고
-        user.setVerify(true);
+        if (request.type().equals(VerityType.EMAIL)) {
+            user.setVerify(true);
+        }
 
         // 인증 토큰 삭제
         userVerifyService.delete(verify);
@@ -196,6 +202,15 @@ public class AuthServiceImpl implements AuthService {
         );
         // 인증 메일 재전송
         mailService.sendEmailVerify(user.getEmail(), user.getNickname());
+    }
+
+    @Override
+    public void findPassword(FindPasswordRequest request) {
+        User user = userService.getOptionalUser(request.email()).orElseThrow(
+            () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+        );
+
+        mailService.sendPasswordVerify(user.getEmail(), user.getNickname());
     }
 
     private Cookie createCookie(String key, String value, Long days) {
