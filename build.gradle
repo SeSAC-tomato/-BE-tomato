@@ -48,6 +48,15 @@ dependencies {
     // 공간 좌표를 사용하기 위한 의존성
     // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-spatial
     implementation 'org.hibernate.orm:hibernate-spatial:7.0.3.Final'
+
+
+    // 웹소켓 관련 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // 스프링 상태 표시 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+
 }
 
 tasks.named('test') {
