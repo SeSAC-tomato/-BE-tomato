@@ -52,6 +52,7 @@ public class Post {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", // Like 엔티티에 'post' 필드가 Post를 참조한다고 가정
             cascade = CascadeType.ALL, // Post 삭제 시 연결된 Like도 모두 삭제
             orphanRemoval = true // Post에서 Like가 끊어지면 Like도 삭제

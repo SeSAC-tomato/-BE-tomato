@@ -4,6 +4,8 @@ import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.post.model.PostStatus;
 import com.exam.tomatoback.post.model.ProductCategory;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.internal.log.SubSystemLogging;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +14,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PostResponeWithOwner {
+@Slf4j
+public class PostResponseWithOwner {
     private Long id;
     private String title;
     private Integer price;
@@ -23,10 +26,12 @@ public class PostResponeWithOwner {
     private LocalDateTime updatedAt;
     private Long userId;
     private String nickname;
-    private String email;
 
-    public static PostResponeWithOwner from(Post post) {
-        return PostResponeWithOwner.builder()
+    public static PostResponseWithOwner from(Post post) {
+        log.info(post.getUser().getNickname());
+        log.info(post.getUser().toString());
+
+        return PostResponseWithOwner.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .price(post.getPrice())
@@ -37,7 +42,6 @@ public class PostResponeWithOwner {
                 .updatedAt(post.getUpdatedAt())
                 .userId(post.getUser().getId())
                 .nickname(post.getUser().getNickname())
-                .email(post.getUser().getEmail())
                 .build();
     }
 }

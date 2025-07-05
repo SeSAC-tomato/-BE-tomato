@@ -10,17 +10,13 @@ import com.exam.tomatoback.post.repository.LikeRepository;
 import com.exam.tomatoback.post.repository.PostProgressRepository;
 import com.exam.tomatoback.user.model.User;
 
-import com.exam.tomatoback.post.repository.ImageRepository;
 import com.exam.tomatoback.post.repository.PostRepository;
 import com.exam.tomatoback.user.repository.UserRepository;
 
 import com.exam.tomatoback.web.dto.post.like.LikeResponse;
-import com.exam.tomatoback.web.dto.post.post.PostCreateRequest;
-import com.exam.tomatoback.web.dto.post.post.PostResponeWithOwner;
-import com.exam.tomatoback.web.dto.post.post.PostResponse;
-import com.exam.tomatoback.web.dto.post.post.PostUpdateRequest;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.data.jpa.repository.EntityGraph;
+import com.exam.tomatoback.web.dto.post.post.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,8 +24,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 
+import java.awt.print.Pageable;
 import java.util.*;
 
 @Service
@@ -52,13 +48,25 @@ public class PostService {
         return postRepository.findAllByDeletedFalse().stream().map(PostResponse::from).toList();
     }
 
-    //Post 개별조회 (소프트 삭제제외)
-    public PostResponeWithOwner getPostById(Long id) {
-       return postRepository.findByIdAndDeletedFalse(id).map(PostResponeWithOwner::from)
+    //Post 일부조회 (소프트삭제 제외)
+
+    public Page<PostResponse> getSomePostDeleteFalse(PostPageRequest postPageRequest, Pageable pageable) {
+        Page<Post> post = postRepository.searchWithFiltersDeleteFalse(postPageRequest, pageable);
+
+        // 엔티티 → DTO 변환
+
+    }
+
+    //ID로 조회 (소프트 삭제제외)
+    public PostResponseWithOwner getPostByIdDeleteFalse(Long id) {
+        return postRepository.findByIdAndDeletedFalse(id).map(PostResponseWithOwner::from)
                 .orElseThrow(() -> new TomatoException(
                         TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
     }
 
+//    public PostResponse getSomePostDeleteFalse(PostPageRequest postPageRequest){
+//        return postRepository.
+//    }
 
     //Post 생성
     @Transactional
@@ -176,14 +184,6 @@ public class PostService {
         pullPost.setPrice(pullPost.getPrice());
         return PostResponse.from(postRepository.save(pullPost));
     }
-
-    //일부조회 (이미지 포함, 소프트 삭제제외)
-    public PostResponse getPostByIdDeleteFalse(Long id) {
-         return postRepository.findByIdAndDeletedFalse(id).map(PostResponse::from)
-            .orElseThrow(() -> new TomatoException(
-                    TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
-    }
-
 
     //충돌방지를 위해서 Post에 일단 생성 (Like)
     public LikeResponse setFavorite(Long postId){

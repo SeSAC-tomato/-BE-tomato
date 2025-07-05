@@ -3,9 +3,13 @@ package com.exam.tomatoback.web.controller;
 import com.exam.tomatoback.post.service.PostService;
 import com.exam.tomatoback.web.dto.common.CommonResponse;
 import com.exam.tomatoback.web.dto.post.post.PostCreateRequest;
+import com.exam.tomatoback.web.dto.post.post.PostPageRequest;
 import com.exam.tomatoback.web.dto.post.post.PostResponse;
 import com.exam.tomatoback.web.dto.post.post.PostUpdateRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +27,18 @@ public class PostController {
         return ResponseEntity.ok(CommonResponse.success(postService.getAllPostDeleteFalse()));
     }
 
+    //Post 각종 필터
+    @GetMapping
+    public ResponseEntity<?> getSomePosts(
+            @ModelAttribute PostPageRequest postPageRequest,
+            @PageableDefault(size = 12, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(CommonResponse.success(postService.getSomePostDeleteFalse()));
+    }
+
     //Post개별조회
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable Long id) {
-        PostResponse post = postService.getPostByIdDeleteFalse(id);
         return ResponseEntity.ok(CommonResponse.success(postService.getPostByIdDeleteFalse(id)));
     }
 
