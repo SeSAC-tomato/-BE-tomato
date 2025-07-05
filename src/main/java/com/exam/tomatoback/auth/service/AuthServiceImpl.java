@@ -48,18 +48,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void register(RegisterRequest registerRequest) {
-        // 이메일 중복 여부 확인
-        if(userService.existsByEmail(registerRequest.getEmail())) {
-            throw new TomatoException(TomatoExceptionCode.DUPLICATE_USER);
-        }
-        // 닉네임 중복 여부 확인
-        if(userService.existsByNickname(registerRequest.getNickname())) {
-            throw new TomatoException(TomatoExceptionCode.DUPLICATE_USER);
-        }
-        // 비밀번호 검증
-        if(!registerRequest.getPassword().equals(registerRequest.getPasswordConfirm())) {
-            throw new TomatoException(TomatoExceptionCode.PASSWORD_MISMATCH);
-        }
+        registerVerify(registerRequest);
         // 비밀번호 암호화
         registerRequest.setPassword(encoder.encode(registerRequest.getPassword()));
 
@@ -89,6 +78,21 @@ public class AuthServiceImpl implements AuthService {
 
         // 이메일 전송
         mailService.sendEmailVerify(newUser.getEmail(), newUser.getNickname());
+    }
+
+    private void registerVerify(RegisterRequest registerRequest) {
+        // 이메일 중복 여부 확인
+        if (userService.existsByEmail(registerRequest.getEmail())) {
+            throw new TomatoException(TomatoExceptionCode.DUPLICATE_USER);
+        }
+        // 닉네임 중복 여부 확인
+        if (userService.existsByNickname(registerRequest.getNickname())) {
+            throw new TomatoException(TomatoExceptionCode.DUPLICATE_USER);
+        }
+        // 비밀번호 검증
+        if (!registerRequest.getPassword().equals(registerRequest.getPasswordConfirm())) {
+            throw new TomatoException(TomatoExceptionCode.PASSWORD_MISMATCH);
+        }
     }
 
     @Override
