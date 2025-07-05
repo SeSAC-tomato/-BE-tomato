@@ -213,6 +213,28 @@ public class AuthServiceImpl implements AuthService {
         mailService.sendPasswordVerify(user.getEmail(), user.getNickname());
     }
 
+    @Override
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+        // 사용자가 있는지 여부 확인
+        User user = userService.getOptionalUser(request.email()).orElseThrow(
+            () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+        );
+        // 인증 정보를 확인하기 위한 dto 로 면화
+        VerifyRequest verifyRequest = VerifyRequest.builder()
+            .email(request.email())
+            .token(request.token())
+            .type(request.type())
+            .build();
+        // 위 dto 를 통한 인증 정보 검증
+        UserVerify verify = userVerifyService.verify(verifyRequest, true);
+        // 검증까지 통과한 경우 비밀번호를 암호화 하여 새로 지정
+        user.setPassword(encoder.encode(request.getPassword()));
+
+        // 새로 지정 후 인증 정보 삭제
+        userVerifyService.delete(verify);
+    }
+
     private Cookie createCookie(String key, String value, Long days) {
         Cookie cookie = new Cookie(key, value);
         // 쿠키 유효시간 7일
