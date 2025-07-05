@@ -5,6 +5,8 @@ import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.like.model.Like;
 import com.exam.tomatoback.like.repository.LikeRepository;
 import com.exam.tomatoback.post.model.Post;
+import com.exam.tomatoback.post.model.PostStatus;
+
 import com.exam.tomatoback.user.model.User;
 
 import com.exam.tomatoback.post.repository.ImageRepository;
@@ -37,6 +39,9 @@ public class PostService {
 //    @Value("${file.upload.dir}")
 //    private String uploadDir;
 //    private static final String IMAGE_BASE_URL_PATH = "/upload/images/";
+//    @Value("${file.upload.dir}")
+//    private String uploadDir;
+    private static final String IMAGE_BASE_URL_PATH = "/upload/images/";
 
     //Post 전체조회 (소프트 삭제 제외)
     public List<PostResponse> getAllPostDeleteFalse() {
@@ -199,6 +204,17 @@ public class PostService {
         } else {
             throw new TomatoException(TomatoExceptionCode.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public Post getPostNoMatterWhatById(long id){
+        return postRepository.findById(id).orElseThrow(() -> new TomatoException(TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
+    }
+
+    public List<Post> getSellingPostByUserId(long userId){
+
+        List<Post> byUserIdAndStatus = postRepository.findByUserIdAndStatus(userId, PostStatus.SELLING);
+
+        return byUserIdAndStatus;
     }
 
 }
