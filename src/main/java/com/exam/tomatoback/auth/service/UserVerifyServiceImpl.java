@@ -27,7 +27,12 @@ public class UserVerifyServiceImpl implements UserVerifyService {
     );
 
     // 만약에 이미 인증 정보가 있을 경우 삭제
-    userVerifyRepository.findByUser(user).ifPresent(userVerifyRepository::delete);
+    userVerifyRepository.findByUser(user).ifPresent((verify) -> {
+      // 인증 타입이 일치할 때만 삭제
+      if (verify.getVerityType().equals(type)) {
+        userVerifyRepository.delete(verify);
+      }
+    });
 
     userVerifyRepository.save(UserVerify.builder()
         .user(user)
