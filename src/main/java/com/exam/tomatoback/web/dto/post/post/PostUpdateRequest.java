@@ -21,14 +21,15 @@ public class PostUpdateRequest {
 
 
     public Post toDomain() {
-        Post newPost = Post.builder()
+        return Post.builder()
                 .id(this.id)
                 .title(this.title)
                 .price(this.price)
                 .content(this.content)
-                .postStatus(this.postStatus)
+                .postProgress(PostProgress.builder()
+                        .postStatus(this.postStatus)
+                        .build())
                 .productCategory(this.productCategory)
                 .build();
-        return newPost;
     }
 }

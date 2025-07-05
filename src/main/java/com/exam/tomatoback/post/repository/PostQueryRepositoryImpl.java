@@ -21,6 +21,7 @@ import java.util.List;
 
 import static com.exam.tomatoback.post.model.QPost.post;
 
+@Repository
 @RequiredArgsConstructor
 public class PostQueryRepositoryImpl implements PostQueryRepository{
 
@@ -46,7 +47,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository{
 //            builder.and(post.region.eq(request.getRegion()));
 //        }
         if (Boolean.TRUE.equals(request.getSelling())) {
-            builder.and(postProgress.status.eq(PostStatus.SELLING));
+            builder.and(postProgress.postStatus.eq(PostStatus.SELLING));
         }
         if (request.getMinPrice() != null) {
             builder.and(post.price.goe(request.getMinPrice()));

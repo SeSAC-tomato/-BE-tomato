@@ -47,3 +47,5 @@ logging:
     org.springframework.messaging.simp.user: TRACE
     org.springframework.messaging.simp.broker: TRACE
     org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

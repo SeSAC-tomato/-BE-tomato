@@ -36,7 +36,7 @@ public class PostResponseWithOwner {
                 .title(post.getTitle())
                 .price(post.getPrice())
                 .content(post.getContent())
-                .postStatus(post.getPostProgress().getStatus())
+                .postStatus(post.getPostProgress().getPostStatus())
                 .productCategory(post.getProductCategory())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())

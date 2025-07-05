@@ -2,23 +2,19 @@ package com.exam.tomatoback.post.service;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
-import com.exam.tomatoback.post.model.Like;
-import com.exam.tomatoback.like.model.Like;
 import com.exam.tomatoback.like.repository.LikeRepository;
 import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.post.model.PostProgress;
 import com.exam.tomatoback.post.model.PostStatus;
-import com.exam.tomatoback.post.repository.LikeRepository;
 import com.exam.tomatoback.post.repository.PostProgressRepository;
 import com.exam.tomatoback.user.model.User;
 
 import com.exam.tomatoback.post.repository.PostRepository;
 import com.exam.tomatoback.user.repository.UserRepository;
 
-import com.exam.tomatoback.web.dto.post.like.LikeResponse;
 import com.exam.tomatoback.web.dto.post.post.*;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.awt.print.Pageable;
 import java.util.*;
 
 @Service
@@ -46,17 +41,15 @@ public class PostService {
 //    private static final String IMAGE_BASE_URL_PATH = "/upload/images/";
 
     //Post 전체조회 (소프트 삭제 제외)
-    public List<PostResponse> getAllPostDeleteFalse() {
-        return postRepository.findAllByDeletedFalse().stream().map(PostResponse::from).toList();
+    public PostPageResponse getAllPostDeleteFalse(Pageable pageable) {
+        Page<Post> postPage = postRepository.findAllByDeletedFalse(pageable);
+        return PostPageResponse.from(postPage);
     }
 
     //Post 일부조회 (소프트삭제 제외)
-
-    public Page<PostResponse> getSomePostDeleteFalse(PostPageRequest postPageRequest, Pageable pageable) {
-        Page<Post> post = postRepository.searchWithFiltersDeleteFalse(postPageRequest, pageable);
-
-        // 엔티티 → DTO 변환
-
+    public PostPageResponse getSomePostDeleteFalse(PostPageRequest postPageRequest, Pageable pageable) {
+        Page<Post> postPage = postRepository.searchWithFiltersDeleteFalse(postPageRequest, pageable);
+        return PostPageResponse.from(postPage);
     }
 
     //ID로 조회 (소프트 삭제제외)
@@ -65,7 +58,6 @@ public class PostService {
                 .orElseThrow(() -> new TomatoException(
                         TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
     }
-
 
     //Post 생성
     @Transactional
@@ -81,7 +73,10 @@ public class PostService {
         Post savedPost = postRepository.save(post);
         PostProgress initialPostProgress = PostProgress.builder()
                 .user(currentUser) // PostProgress에도 User 정보 연결
+                .post(savedPost)
+                .postStatus(PostStatus.SELLING)
                 .build();
+        System.out.println("✅ 초기 상태 (빌더 생성 후): " + initialPostProgress.getPostStatus());
         initialPostProgress.setPost(savedPost);
         postProgressRepository.save(initialPostProgress);
         post.setPostProgress(initialPostProgress);
@@ -149,7 +144,6 @@ public class PostService {
         updatePost.setPrice(request.getPrice());
         updatePost.setContent(request.getContent());
         updatePost.setProductCategory(request.getProductCategory());
-        updatePost.setPostStatus(request.getPostStatus());
         updatePost.setProductCategory(request.toDomain().getProductCategory());
         return PostResponse.from(postRepository.save(updatePost));
     }
@@ -168,12 +162,12 @@ public class PostService {
         Post targetPost = postRepository.findByIdAndDeletedFalse(id).orElseThrow(() -> new TomatoException(
                 TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
 
-        PostStatus currentStatus = targetPost.getPostProgress().getStatus();
+        PostStatus currentStatus = targetPost.getPostProgress().getPostStatus();
         PostStatus nextStatus = currentStatus.nextStatus();
         if(nextStatus == null){
             throw new TomatoException(TomatoExceptionCode.STATUS_UPDATE_FAILURE);
         }
-        targetPost.getPostProgress().setStatus(nextStatus);
+        targetPost.getPostProgress().setPostStatus(nextStatus);
         return PostResponse.from(postRepository.save(targetPost));
     }
 
@@ -186,24 +180,7 @@ public class PostService {
         return PostResponse.from(postRepository.save(pullPost));
     }
 
-    //충돌방지를 위해서 Post에 일단 생성 (Like)
-    public LikeResponse setFavorite(Long postId){
-        Post postFavorite = postRepository.findByIdAndDeletedFalse(postId)
-                .orElseThrow(() -> new TomatoException(
-                        TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
-        User currentUser = getCurrentUser();
-        Optional<Like> existingLike = likeRepository.findByPostAndUser( postFavorite, currentUser);
 
-        if(existingLike.isPresent()){
-            Like likeToDelete = existingLike.get();
-            likeRepository.delete(likeToDelete);
-            return LikeResponse.from(likeToDelete, false);
-        } else {
-            Like newLike = Like.builder().user(currentUser).post(postFavorite).build();
-            Like savedLike = likeRepository.save(newLike);
-            return LikeResponse.from(savedLike, true);
-        }
-    }
 
     //User정보 조회
     public User getCurrentUser(){

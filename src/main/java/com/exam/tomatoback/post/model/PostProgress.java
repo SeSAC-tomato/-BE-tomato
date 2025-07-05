@@ -27,5 +27,5 @@ public class PostProgress {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private PostStatus status = PostStatus.SELLING;
+    private PostStatus postStatus = PostStatus.SELLING;
 }

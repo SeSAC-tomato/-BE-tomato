@@ -1,5 +1,6 @@
 package com.exam.tomatoback.post.model;
 
+import com.exam.tomatoback.like.model.Like;
 import com.exam.tomatoback.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -65,6 +66,4 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Image> images;
-
-
 }

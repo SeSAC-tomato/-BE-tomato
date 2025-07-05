@@ -11,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,16 +22,17 @@ public class PostController {
 
     //Post전체조회
     @GetMapping
-    public ResponseEntity<?> getAllPosts() {
-        return ResponseEntity.ok(CommonResponse.success(postService.getAllPostDeleteFalse()));
+    public ResponseEntity<?> getAllPosts(
+            @PageableDefault(size = 12, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(CommonResponse.success(postService.getAllPostDeleteFalse(pageable)));
     }
 
     //Post 각종 필터
-    @GetMapping
+    @GetMapping("/search")
     public ResponseEntity<?> getSomePosts(
             @ModelAttribute PostPageRequest postPageRequest,
             @PageableDefault(size = 12, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(CommonResponse.success(postService.getSomePostDeleteFalse()));
+        return ResponseEntity.ok(CommonResponse.success(postService.getSomePostDeleteFalse(postPageRequest, pageable)));
     }
 
     //Post개별조회
@@ -80,12 +80,6 @@ public class PostController {
     public ResponseEntity<Void> deletePost (@PathVariable Long id){
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
-    }
-
-    //충돌방지를 위해 일단 여기에 저장
-    @PostMapping("/{postId}/cart")
-    public ResponseEntity<?> setFavorite(@PathVariable Long postId){
-        return ResponseEntity.ok(CommonResponse.success(postService.setFavorite(postId)));
     }
 
 }
