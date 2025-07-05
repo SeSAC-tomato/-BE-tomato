@@ -77,6 +77,9 @@ public class AuthServiceImpl implements AuthService {
         Address address = Address.builder()
             .user(newUser)
             .address(registerRequest.getAddress())
+            .sido(registerRequest.getSido())
+            .sigungu(registerRequest.getSigungu())
+            .dong(registerRequest.getDong())
             .build();
 
         newUser.setAddress(address);

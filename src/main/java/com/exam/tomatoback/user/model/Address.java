@@ -20,7 +20,21 @@ public class Address {
     @JoinColumn(name = "user_id")
     private User user;
     // 카카오 다음 주소 검색 api 에서 반환될 주소를 저장 (예: 경기 성남시 분당구 판교역로 166 or 경기 성남시 분당구 백현동 532)
+    @Column(nullable = false)
     private String address;
+
+    // 도/시 이름 (경기, 서울)
+    @Column(nullable = false)
+    private String sido;
+
+    // 시/군/구 이름 (성남시 분당구)
+    @Column(nullable = false)
+    private String sigungu;
+
+    // 법정동/법정리 이름 (백현동)
+    @Column(nullable = false)
+    private String dong;
+
     // 아래의 정보는 이메일 인증 후 위 주소를 api 를 사용하여 변환 후 저장이 될 예정
     @Column(name = "POINT", columnDefinition = "POINT SRID 4326")
     private Point point;

@@ -29,4 +29,10 @@ public class RegisterRequest implements PasswordMatchable {
   private String nickname;
   @NotBlank(message = "주소는 필수 항목입니다.")
   private String address;
+  @NotBlank(message = "도/시 이름은 필수 항목입니다.")
+  private String sido;
+  @NotBlank(message = "시/군/구 이름은 필수 항목입니다.")
+  private String sigungu;
+  @NotBlank(message = "법정동/법정리 이름은 필수 항목입니다.")
+  private String dong;
 }
