@@ -11,7 +11,8 @@ public final class Constants {
         "/api/v1/auth/nickname",    // 닉네임 중복 확인
         "/api/v1/auth/refresh",     // 토큰 재발행 해당 기능의 경우 accesstoken 이 없어도 가능하게 해야함
         "/api/v1/auth/verify",      // 인증용 주소
-        "/api/v1/auth/reverify"     // 인증 재전송 주소
+        "/api/v1/auth/reverify",     // 인증 재전송 주소
+        "/api/v1/auth/password",    // 비밀번호 재설정 이메일 전송 요청용 주소
     };
 
     public static final String[] ADMIN_PATH = {};

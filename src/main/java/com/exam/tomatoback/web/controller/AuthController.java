@@ -62,4 +62,10 @@ public class AuthController {
         service.reverify(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @PostMapping("/password")
+    public ResponseEntity<?> findPassword(@RequestBody FindPasswordRequest request) {
+        service.findPassword(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }
