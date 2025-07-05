@@ -3,6 +3,8 @@ package com.exam.tomatoback.post.service;
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.post.model.Like;
+import com.exam.tomatoback.like.model.Like;
+import com.exam.tomatoback.like.repository.LikeRepository;
 import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.post.model.PostProgress;
 import com.exam.tomatoback.post.model.PostStatus;
@@ -64,9 +66,6 @@ public class PostService {
                         TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
     }
 
-//    public PostResponse getSomePostDeleteFalse(PostPageRequest postPageRequest){
-//        return postRepository.
-//    }
 
     //Post 생성
     @Transactional
@@ -150,6 +149,8 @@ public class PostService {
         updatePost.setPrice(request.getPrice());
         updatePost.setContent(request.getContent());
         updatePost.setProductCategory(request.getProductCategory());
+        updatePost.setPostStatus(request.getPostStatus());
+        updatePost.setProductCategory(request.toDomain().getProductCategory());
         return PostResponse.from(postRepository.save(updatePost));
     }
 
@@ -204,7 +205,6 @@ public class PostService {
         }
     }
 
-
     //User정보 조회
     public User getCurrentUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -222,4 +222,5 @@ public class PostService {
             throw new TomatoException(TomatoExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

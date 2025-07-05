@@ -1,4 +1,4 @@
-package com.exam.tomatoback.web.dto.post.like;
+package com.exam.tomatoback.web.dto.post;
 
 import lombok.*;
 
