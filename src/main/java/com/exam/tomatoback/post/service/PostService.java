@@ -212,7 +212,7 @@ public class PostService {
 
     public List<Post> getSellingPostByUserId(long userId){
 
-        List<Post> byUserIdAndStatus = postRepository.findByUserIdAndStatus(userId, PostStatus.SELLING);
+        List<Post> byUserIdAndStatus = postRepository.findByUserIdAndPostStatus(userId, PostStatus.SELLING);
 
         return byUserIdAndStatus;
     }

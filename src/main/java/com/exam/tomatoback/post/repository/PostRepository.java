@@ -87,5 +87,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByIdAndDeletedFalse(Long id);
 
 
-    List<Post> findByUserIdAndStatus(Long userId, PostStatus status);
+    List<Post> findByUserIdAndPostStatus(Long userId, PostStatus status);
 }
