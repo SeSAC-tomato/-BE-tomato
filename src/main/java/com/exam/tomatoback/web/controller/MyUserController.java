@@ -1,5 +1,6 @@
 package com.exam.tomatoback.web.controller;
 
+import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.web.dto.like.request.*;
 import com.exam.tomatoback.like.service.LikeService;
 import com.exam.tomatoback.post.service.MyPostsService;
@@ -11,15 +12,13 @@ import com.exam.tomatoback.web.dto.mypage.request.MyPageHistoryGetRequest;
 import com.exam.tomatoback.web.dto.mypage.request.PasswordUpdateRequest;
 import com.exam.tomatoback.web.dto.mypage.request.UserUpdateRequest;
 import com.exam.tomatoback.web.dto.like.response.CartGetResponse;
-import com.exam.tomatoback.web.dto.mypage.response.MyPageHistoryResponse;
-import com.exam.tomatoback.web.dto.mypage.response.PasswordUpdatedResponse;
-import com.exam.tomatoback.web.dto.mypage.response.UserResponse;
-import com.exam.tomatoback.web.dto.mypage.response.UserUpdatedResponse;
+import com.exam.tomatoback.web.dto.mypage.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,6 +30,13 @@ public class MyUserController {
     private final UserService userService;
     private final LikeService likeService;
     private final MyPostsService myPostsService;
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyInfo() {
+        User user = userService.getCurrentUser();
+        UserInfoResponse response = UserInfoResponse.from(user);
+        return ResponseEntity.ok(CommonResponse.success(response));
+    }
 
     @GetMapping("/{userId}/profile")
     public ResponseEntity<?> getUserById(
