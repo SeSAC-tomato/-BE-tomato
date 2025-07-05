@@ -5,7 +5,10 @@ import com.exam.tomatoback.chat.enums.RoomProgressEnum;
 import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.user.model.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @AllArgsConstructor
@@ -18,7 +21,7 @@ public class RoomProgress {
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId  // User의 ID를 이 엔티티의 ID로 사용
-    @JoinColumn(name = "id",  nullable = false, updatable = false)
+    @JoinColumn(name = "id", nullable = false, updatable = false)
     private Room room;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,13 +30,12 @@ public class RoomProgress {
 
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,name = "room_progress")
+    @Column(nullable = false, name = "room_progress")
     private RoomProgressEnum roomProgress;
 
-    @ManyToOne(fetch =  FetchType.LAZY )
-    @JoinColumn(name = "target_post",nullable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_post", nullable = false, updatable = false)
     private Post post;
-
 
 
 }

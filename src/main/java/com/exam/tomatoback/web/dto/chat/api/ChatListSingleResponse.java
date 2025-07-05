@@ -15,4 +15,5 @@ public class ChatListSingleResponse {
     private ChatResponse lastChat;
     private long roomId;
     private int unreadCount;
+    private long userId;
 }

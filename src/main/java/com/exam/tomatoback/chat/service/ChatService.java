@@ -18,35 +18,25 @@ public class ChatService {
     private final ChatRepository chatRepository;
 
     public Chat save(Chat newChat) {
-        Chat save = chatRepository.save(newChat);
-        return save;
+        return chatRepository.save(newChat);
     }
 
     public Optional<Chat> getLastChatByRoomId(Long id) {
-        Optional<Chat> firstByRoomIdOrderByCreatedAtDesc = chatRepository.findFirstByRoomIdOrderByCreatedAtDesc(id);
-        return  firstByRoomIdOrderByCreatedAtDesc;
+        return chatRepository.findFirstByRoomIdOrderByCreatedAtDesc(id);
     }
 
     public Page<Chat> getChats(long roomId, Pageable pageable) {
-
-        Page<Chat> byRoomId = chatRepository.findByRoomIdOrderByIdDesc(roomId, pageable);
-        byRoomId.getContent().forEach(chat -> {
-            System.out.println(chat.getId()+" "+chat.getCreatedAt());
-        });
-
-        return byRoomId;
+        return chatRepository.findByRoomIdOrderByIdDesc(roomId, pageable);
     }
 
-
     public Chat getChatByIdAndRoomId(long chatId, long roomId) {
-        Optional<Chat> byIdAndRoomId = chatRepository.findByIdAndRoomId(chatId, roomId);
-
-        return byIdAndRoomId.orElseThrow(() -> new TomatoException(TomatoExceptionCode.CHAT_CHAT_NOT_FOUND));
+        return chatRepository.findByIdAndRoomId(chatId, roomId).orElseThrow(() -> new TomatoException(TomatoExceptionCode.CHAT_CHAT_NOT_FOUND));
     }
 
     public long countAfterChatId(Chat lastChat, Room room) {
         return chatRepository.countByRoomIdAndIdGreaterThan(room.getId(), lastChat.getId());
     }
+
     public long countAfterChatId(long lastChatId, Room room) {
         return chatRepository.countByRoomIdAndIdGreaterThan(room.getId(), lastChatId);
     }

@@ -27,6 +27,9 @@ public class ChatRequest {
 
     private String content;
 
+    // 수락시 보내는 응답 ( 예약, 거래확정만 )
+    private Boolean isDone;
+
     // 이벤트시 postId
     private Long targetId;
 

@@ -1,9 +1,6 @@
 package com.exam.tomatoback.web.controller.chat;
 
 import com.exam.tomatoback.infrastructure.util.Constants;
-import com.exam.tomatoback.infrastructure.util.JwtUtil;
-import com.exam.tomatoback.user.model.Provider;
-import com.exam.tomatoback.user.model.Role;
 import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -12,11 +9,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,13 +27,14 @@ public class TesController {
 
     private final UserService userService;
 
+    // 자기정보 가져오기
     @GetMapping("/login/userInfo")
-    public Map<String,String> getUserInfo(){
-        Map<String,String> map = new HashMap<>();
+    public Map<String, String> getUserInfo() {
+        Map<String, String> map = new HashMap<>();
         User currentUser = userService.getCurrentUser();
         map.put("userId", String.valueOf(currentUser.getId()));
-        map.put("email",  currentUser.getEmail());
-        map.put("nickname",  currentUser.getNickname());
+        map.put("email", currentUser.getEmail());
+        map.put("nickname", currentUser.getNickname());
         return map;
     }
 

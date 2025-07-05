@@ -10,4 +10,8 @@ import lombok.NoArgsConstructor;
 public class ChatRoomResponse {
     private long roomId;
 
+    private long targetUserId;
+
+    private String targetUserNickname;
+
 }

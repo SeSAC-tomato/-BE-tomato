@@ -20,23 +20,17 @@ public class ChatLastReadService {
     private final ChatLastReadRepository chatLastReadRepository;
 
 
-
+    // 마지막 읽은 채팅 변경
     @Transactional
     public void setLastRead(Chat chatByIdAndRoomId, Room roomById, User requestUser) {
 
-        System.out.println(chatByIdAndRoomId.getId());
-        System.out.println(roomById.getId());
-        System.out.println(requestUser.getId());
-
         Optional<ChatLastRead> byIdRoomIdAndIdUserId = chatLastReadRepository.findByIdRoomIdAndIdUserId(roomById.getId(), requestUser.getId());
-
 
         ChatLastRead chatLastRead;
         if (byIdRoomIdAndIdUserId.isPresent()) {
             chatLastRead = byIdRoomIdAndIdUserId.get();
             if (chatLastRead.getChat().getId() < chatByIdAndRoomId.getId()) {
                 chatLastRead.setChat(chatByIdAndRoomId);
-//                chatLastReadRepository.save(chatLastRead);
             }
         } else {
             chatLastRead = new ChatLastRead();
@@ -49,16 +43,13 @@ public class ChatLastReadService {
 
     }
 
-    public boolean existLastReadByChatAndRoomAndUser(Chat lastChat, Room room, User user) {
-//        return chatLastReadRepository.existsByChatIdAndIdRoomIdAndIdUserId(lastChat.getId(), room.getId(), user.getId());
-        return  chatLastReadRepository.existsByIdRoomIdAndIdUserId(room.getId(), user.getId());
-
-//        return chatLastReadRepository.existsByIdAndChatId(new RoomUserId(room.getId(), user.getId()), lastChat.getId());
+    // 마지막 읽은 채팅이 있는지
+    public boolean existLastReadByChatAndRoomAndUser(Room room, User user) {
+        return chatLastReadRepository.existsByIdRoomIdAndIdUserId(room.getId(), user.getId());
     }
 
-    public ChatLastRead getLastReadByChatAndRoomAndUser(Chat lastChat, Room room, User user) {
-
-        return chatLastReadRepository.findByIdRoomIdAndIdUserId( room.getId(), user.getId()).orElseThrow(() -> new TomatoException(TomatoExceptionCode.CHAT_CHAT_LAST_READ_NOT_FOUND));
-//        return chatLastReadRepository.findByIdAndChatId(new RoomUserId(room.getId(), user.getId()), lastChat.getId()).orElseThrow(() -> new TomatoException(TomatoExceptionCode.CHAT_CHAT_LAST_READ_NOT_FOUND));
+    //  마지막 읽은 채팅 가져오기
+    public ChatLastRead getLastReadByChatAndRoomAndUser(Room room, User user) {
+        return chatLastReadRepository.findByIdRoomIdAndIdUserId(room.getId(), user.getId()).orElseThrow(() -> new TomatoException(TomatoExceptionCode.CHAT_CHAT_LAST_READ_NOT_FOUND));
     }
 }

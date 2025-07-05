@@ -2,7 +2,10 @@ package com.exam.tomatoback.chat.model;
 
 import com.exam.tomatoback.user.model.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 

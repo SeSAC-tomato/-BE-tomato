@@ -14,20 +14,20 @@ import java.util.List;
 @NoArgsConstructor
 public class ChatResponse {
     // about chat
-    private long chatId;
     private long roomId;
     private long senderId;
-    private String content;
-    private LocalDateTime createdAt;
     private ChatType chatType;
+
+    private long chatId;
+    private LocalDateTime createdAt;
+    private String content;
+
+    List<String> images;
 
     // about 이벤트
     private String targetId;
     private PostResponse post;
-    private Boolean isEventDone;
 
-    // about images
-    List<String> images;
 
 
 

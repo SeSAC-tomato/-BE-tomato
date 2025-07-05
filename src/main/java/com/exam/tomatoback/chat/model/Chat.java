@@ -33,6 +33,7 @@ public class Chat {
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private User sender;
 
+    @Column(updatable = false)
     private String content;
 
     @CreationTimestamp
@@ -43,6 +44,9 @@ public class Chat {
     @Column(nullable = false, updatable = false)
     private ChatType chatType;
 
+    // 이벤트 수락시 보내는 응답 -> 수락시 true ( 예약, 거래확정만 )
+    @Column(updatable = false)
+    private Boolean isDone;
 
     @Override
     public boolean equals(Object o) {

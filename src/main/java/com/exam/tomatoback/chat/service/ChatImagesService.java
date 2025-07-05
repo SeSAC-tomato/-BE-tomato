@@ -18,8 +18,7 @@ public class ChatImagesService {
 
     public List<String> getChatImagesByChatId(Long id) {
         List<ChatImages> byChatId = chatImagesRepository.findByChatId(id);
-        List<String> list = byChatId.stream().map(chatImage -> chatImage.getSavedName()).toList();
 
-        return list;
+        return byChatId.stream().map(ChatImages::getSavedName).toList();
     }
 }

@@ -1,12 +1,13 @@
 package com.exam.tomatoback.chat.validator;
 
 import com.exam.tomatoback.chat.annotation.ValidChatRequest;
+import com.exam.tomatoback.chat.enums.ChatType;
 import com.exam.tomatoback.web.dto.chat.websocket.ChatRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.util.StringUtils;
 
-public class ChatRequestValidator  implements ConstraintValidator<ValidChatRequest, ChatRequest> {
+public class ChatRequestValidator implements ConstraintValidator<ValidChatRequest, ChatRequest> {
     @Override
     public boolean isValid(ChatRequest chatRequest, ConstraintValidatorContext context) {
         // Type -> message, image, book, end
@@ -33,22 +34,24 @@ public class ChatRequestValidator  implements ConstraintValidator<ValidChatReque
             }
             case IMAGE -> {
                 boolean hasImages = chatRequest.getImages() != null && !chatRequest.getImages().isEmpty();
-                if(!hasImages){
+                if (!hasImages) {
                     return false;
                 }
             }
-            case EVENT_BOOK, EVENT_END -> {
+            case EVENT_BOOK, EVENT_END, EVENT_CANCEL -> {
                 Long targetId = chatRequest.getTargetId();
-                if(targetId == null){
+
+                if (chatRequest.getChatType() == ChatType.EVENT_BOOK || chatRequest.getChatType() == ChatType.EVENT_END) {
+                    if (chatRequest.getIsDone() == null) {
+                        return false;
+                    }
+                }
+
+                if (targetId == null) {
                     return false;
                 }
             }
         }
-
-
-
-
-
 
 
         return true;

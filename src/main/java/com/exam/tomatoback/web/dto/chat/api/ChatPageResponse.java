@@ -1,20 +1,15 @@
 package com.exam.tomatoback.web.dto.chat.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatPageResponse {
+public class ChatPageResponse  extends DefaultPageResponse{
     private long roomId;
-    private int size;
-    private int currentPage;
-    private long totalElements;
-    private int totalPages;
-
     private List<ChatResponse> content;
 }

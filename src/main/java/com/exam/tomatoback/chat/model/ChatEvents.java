@@ -24,8 +24,6 @@ public class ChatEvents {
     @JoinColumn(name = "chat_id", nullable = false, updatable = false)
     private Chat chat;
 
-    private boolean isEventDone;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post targetPost;

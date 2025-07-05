@@ -25,9 +25,9 @@ public enum ChatType {
      */
     EVENT_END,
     /**
-     *  거래 취소
+     * 거래 취소
      */
-     EVENT_CANCEL
+    EVENT_CANCEL
 
 
 }

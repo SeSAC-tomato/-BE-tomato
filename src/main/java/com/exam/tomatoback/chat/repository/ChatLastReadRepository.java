@@ -9,16 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface ChatLastReadRepository extends JpaRepository<ChatLastRead, RoomUserId> {
-
-    boolean existsByChatIdAndIdRoomIdAndIdUserId(long chatId, long roomId, long userId);
-
-    Optional<ChatLastRead> findByChatIdAndIdRoomIdAndIdUserId(long chatId, long roomId, long userId);
-
     Optional<ChatLastRead> findByIdRoomIdAndIdUserId(long roomId, long userId);
+
     boolean existsByIdRoomIdAndIdUserId(long roomId, long userId);
 
-//    boolean existsByChatIdAndRoomIdAndUserId(long chatId, long roomId, long userId);
-//    Optional<ChatLastRead> findByChatIdAndRoomIdAndUserId(long chatId, long roomId, long userId);
-//    Optional<ChatLastRead> findByIdAndChatId(RoomUserId roomUserId, long chatId);
-//    boolean existsByIdAndChatId(RoomUserId roomUserId, long chatId);
 }

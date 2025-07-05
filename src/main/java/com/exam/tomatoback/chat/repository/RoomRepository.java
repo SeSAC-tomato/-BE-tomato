@@ -11,7 +11,6 @@ import java.util.Optional;
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
-    boolean existsBySellerIdAndBuyerIdOrBuyerIdAndSellerId(Long sellerId, Long buyerId, Long anotherBuyerId, Long anotherSellerId);
 
     Optional<Room> findBySellerIdAndBuyerIdOrBuyerIdAndSellerId(Long sellerId, Long buyerId, Long anotherBuyerId, Long anotherSellerId);
 
