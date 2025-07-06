@@ -1,10 +1,7 @@
 package com.exam.tomatoback.web.controller;
 
 import com.exam.tomatoback.auth.service.AuthService;
-import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
-import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
-import com.exam.tomatoback.web.dto.auth.request.NicknameCheckRequest;
-import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
+import com.exam.tomatoback.web.dto.auth.request.*;
 import com.exam.tomatoback.web.dto.common.CommonResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,5 +49,29 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletResponse response) {
         service.logout(response);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<?> userVerify(@RequestBody VerifyRequest request) {
+        service.verify(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reverify")
+    public ResponseEntity<?> userReverify(@RequestBody VerifyRequest request) {
+        service.reverify(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<?> findPassword(@RequestBody FindPasswordRequest request) {
+        service.findPassword(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        service.changePassword(request);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

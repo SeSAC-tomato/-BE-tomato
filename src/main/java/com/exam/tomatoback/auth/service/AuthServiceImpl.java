@@ -1,26 +1,28 @@
 package com.exam.tomatoback.auth.service;
 
 import com.exam.tomatoback.auth.model.RefreshToken;
+import com.exam.tomatoback.auth.model.UserVerify;
+import com.exam.tomatoback.auth.model.VerityType;
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.infrastructure.util.Constants;
+import com.exam.tomatoback.infrastructure.util.GeometryUtil;
 import com.exam.tomatoback.infrastructure.util.JwtUtil;
 import com.exam.tomatoback.user.model.Address;
 import com.exam.tomatoback.user.model.Provider;
 import com.exam.tomatoback.user.model.Role;
 import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.service.UserService;
-import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
-import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
-import com.exam.tomatoback.web.dto.auth.request.NicknameCheckRequest;
-import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
+import com.exam.tomatoback.web.dto.auth.request.*;
 import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
+import com.exam.tomatoback.web.dto.auth.response.KakaoAddressResponse;
 import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Point;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,6 +31,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -43,43 +46,57 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
     private final UserDetailsService userDetailsService;
+    private final MailService mailService;
+    private final UserVerifyService userVerifyService;
+    private final KakaoLocalService kakaoLocalService;
 
     @Override
     public void register(RegisterRequest registerRequest) {
-        // 이메일 중복 여부 확인
-        if(userService.existsByEmail(registerRequest.getEmail())) {
-            throw new TomatoException(TomatoExceptionCode.DUPLICATE_USER);
-        }
-        // 닉네임 중복 여부 확인
-        if(userService.existsByNickname(registerRequest.getNickname())) {
-            throw new TomatoException(TomatoExceptionCode.DUPLICATE_USER);
-        }
-        // 비밀번호 검증
-        if(!registerRequest.getPassword().equals(registerRequest.getPasswordConfirm())) {
-            throw new TomatoException(TomatoExceptionCode.PASSWORD_MISMATCH);
-        }
+        registerVerify(registerRequest);
         // 비밀번호 암호화
         registerRequest.setPassword(encoder.encode(registerRequest.getPassword()));
 
         // 신규 사용자 정보 설정
         User newUser = User.builder()
-                .email(registerRequest.getEmail())
-                .nickname(registerRequest.getNickname())
-                .password(registerRequest.getPassword())
-                .provider(Provider.LOCAL)
-                .role(Role.USER)
-                .build();
+            .email(registerRequest.getEmail())
+            .nickname(registerRequest.getNickname())
+            .password(registerRequest.getPassword())
+            .provider(Provider.LOCAL)
+            .role(Role.USER)
+            .verify(false)
+            .build();
 
         // 주소 정보 설정
         Address address = Address.builder()
-                .user(newUser)
-                .address(registerRequest.getAddress())
-                .build();
+            .user(newUser)
+            .address(registerRequest.getAddress())
+            .sido(registerRequest.getSido())
+            .sigungu(registerRequest.getSigungu())
+            .dong(registerRequest.getDong())
+            .build();
 
         newUser.setAddress(address);
 
         // 사용자 저장
         userService.save(newUser);
+
+        // 이메일 전송
+        mailService.sendEmailVerify(newUser.getEmail(), newUser.getNickname());
+    }
+
+    private void registerVerify(RegisterRequest registerRequest) {
+        // 이메일 중복 여부 확인
+        if (userService.existsByEmail(registerRequest.getEmail())) {
+            throw new TomatoException(TomatoExceptionCode.DUPLICATE_USER);
+        }
+        // 닉네임 중복 여부 확인
+        if (userService.existsByNickname(registerRequest.getNickname())) {
+            throw new TomatoException(TomatoExceptionCode.DUPLICATE_USER);
+        }
+        // 비밀번호 검증
+        if (!registerRequest.getPassword().equals(registerRequest.getPasswordConfirm())) {
+            throw new TomatoException(TomatoExceptionCode.PASSWORD_MISMATCH);
+        }
     }
 
     @Override
@@ -158,6 +175,83 @@ public class AuthServiceImpl implements AuthService {
 
         // 3. SecurityContext 삭제 (메모리 상의 인증 정보 제거)
         SecurityContextHolder.clearContext();
+    }
+
+    @Override
+    @Transactional
+    public void verify(VerifyRequest request) {
+        // 인증할 사용자의 정보 조회
+        User user = userService.getOptionalUser(request.email()).orElseThrow(
+            () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+        );
+        // 인증 타입이 비밀번호가 아닌 경우에 아래 코드 실행
+        // 이미 인증된 사용자의 경우 이미 인증이 되었다고 로그인 하라고 반환
+        if (!request.type().equals(VerityType.PASSWORD) && user.getVerify()) {
+            throw new TomatoException(TomatoExceptionCode.ALREADY_USER);
+        }
+        // 넘어온 토큰과 해당 사용자의 일치 여부와 타입 일치 여부 확인
+        UserVerify verify = userVerifyService.verify(request, true);
+
+        // 비밀번호 인증의 경우 토큰을 사용자가 비밀번호 수정 했을 때 삭제를 하도록 하게 해야함
+        // 이메일 인증의 경우
+        // 인증된 사용자로 수정을 해주고
+        // 인증 토큰 삭제
+        if (request.type().equals(VerityType.EMAIL)) {
+            user.setVerify(true);
+            // 사용자의 주소를 좌표로 변환 하고 이를 db 에 저장
+            KakaoAddressResponse kakaoAddressResponse = kakaoLocalService.searchAddress(user.getAddress().getAddress());
+            Point point = GeometryUtil.exchangePoint(kakaoAddressResponse.getDocuments().get(0).getX(), kakaoAddressResponse.getDocuments().get(0).getY());
+            user.getAddress().setPoint(point);
+            userVerifyService.delete(verify);
+        }
+    }
+
+    @Override
+    public void reverify(VerifyRequest request) {
+        // 토큰 만료를 제외한 인증 정보 검증
+        userVerifyService.verify(request, false);
+
+        // 사용자 조회
+        User user = userService.getOptionalUser(request.email()).orElseThrow(
+            () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+        );
+        // 인증 메일 재전송
+        mailService.sendEmailVerify(user.getEmail(), user.getNickname());
+    }
+
+    @Override
+    public void findPassword(FindPasswordRequest request) {
+        User user = userService.getOptionalUser(request.email()).orElseThrow(
+            () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+        );
+
+        mailService.sendPasswordVerify(user.getEmail(), user.getNickname());
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+        // 사용자가 있는지 여부 확인
+        User user = userService.getOptionalUser(request.email()).orElseThrow(
+            () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+        );
+        // 인증 정보를 확인하기 위한 dto 로 면화
+        VerifyRequest verifyRequest = VerifyRequest.builder()
+            .email(request.email())
+            .token(request.token())
+            .type(request.type())
+            .build();
+        // 위 dto 를 통한 인증 정보 검증
+        UserVerify verify = userVerifyService.verify(verifyRequest, true);
+        // 직전 사용한 비밀번호의 경우 409 에러가 발생하도록 하게 함
+        if (encoder.matches(request.password(), user.getPassword())) {
+            throw new TomatoException(TomatoExceptionCode.PASSWORD_DUPLICATED);
+        }
+        // 검증까지 통과한 경우 비밀번호를 암호화 하여 새로 지정
+        user.setPassword(encoder.encode(request.getPassword()));
+
+        // 새로 지정 후 인증 정보 삭제
+        userVerifyService.delete(verify);
     }
 
     private Cookie createCookie(String key, String value, Long days) {
