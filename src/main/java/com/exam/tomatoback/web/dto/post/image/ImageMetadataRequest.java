@@ -1,4 +1,4 @@
-package com.exam.tomatoback.web.dto.post;
+package com.exam.tomatoback.web.dto.post.image;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
