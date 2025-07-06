@@ -1,5 +1,6 @@
 package com.exam.tomatoback.user.model;
 
+import com.exam.tomatoback.post.model.Post;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -7,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "`users`")
@@ -45,4 +47,7 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, optional = false)
     private Address address;
+
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts;
 }

@@ -1,11 +1,9 @@
-package com.exam.tomatoback.web.dto.post;
+package com.exam.tomatoback.web.dto.post.post;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
-import com.exam.tomatoback.post.model.Post;
-import com.exam.tomatoback.post.model.Image;
-import com.exam.tomatoback.post.model.PostStatus;
-import com.exam.tomatoback.post.model.ProductCategory;
+import com.exam.tomatoback.post.model.*;
+import com.exam.tomatoback.web.dto.post.image.ImageResponse;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -22,7 +20,7 @@ public class PostDetailResponse {
     private String title;
     private Integer price;
     private String content;
-    private PostStatus postStatus;
+    private PostProgress postProgress;
     private ProductCategory productCategory;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -31,11 +29,6 @@ public class PostDetailResponse {
     private List<ImageResponse> images;
 
     public static PostDetailResponse from(Post post, List<Image> images) {
-        if( post.getUser() == null || post.getUser().getId() == null) {
-            throw new TomatoException(
-                    TomatoExceptionCode.ASSOCIATED_USER_NOT_FOUND);
-        }
-
         List<ImageResponse> imagesResponses = images.stream()
                 .map(ImageResponse::from)
                 .toList();
@@ -51,7 +44,7 @@ public class PostDetailResponse {
                 .title(post.getTitle())
                 .price(post.getPrice())
                 .content(post.getContent())
-                .postStatus(post.getPostStatus())
+                .postProgress(post.getPostProgress())
                 .productCategory(post.getProductCategory())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())

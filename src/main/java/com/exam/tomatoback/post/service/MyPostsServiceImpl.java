@@ -73,7 +73,7 @@ public class MyPostsServiceImpl implements MyPostsService {
                             .img(imageUrl)
                             .createdAt(post.getCreatedAt())
                             .updatedAt(post.getUpdatedAt())
-                            .postStatus(post.getPostStatus())
+                            .postStatus(post.getPostProgress().getPostStatus())
                             .productCategory(post.getProductCategory())
                             .build();
                 })

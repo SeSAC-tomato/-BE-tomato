@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepository{
+    Optional<Post> findByIdAndDeletedFalse(Long id);
+    Page<Post> findAllByDeletedFalse(Pageable pageable);
 
     Page<Post> findPostsByUserId(Long userId, Pageable pageable);
 
@@ -76,12 +78,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     FROM Post p
     JOIN PostProgress pp ON p.id = pp.post.id
     WHERE pp.user.id = :userId
-    AND pp.postStatus = 'END'
+    AND pp.postStatus = 'SELLING'
     ORDER BY p.updatedAt desc
     
 """)
     Page<Post> findEndPostsByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    List<Post> findAllByDeletedFalse();
-    Optional<Post> findByIdAndDeletedFalse(Long id);
+
 }

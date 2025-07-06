@@ -32,3 +32,20 @@ spring:
       format-sql: true
   config:
     import: classpath:tomato-db.yml, classpath:jwt-config.yml, classpath:mail.yml
+
+
+
+logging:
+  level:
+    root: info
+    org.springframework.web.socket: debug
+    org.springframework.messaging: debug
+    org.springframework.web.socket.messaging.StompSubProtocolHandler: debug
+    org.springframework.web.socket.server.support: debug
+    org.springframework.web.socket.sockjs: debug
+    org.springframework.messaging.simp: DEBUG
+    org.springframework.messaging.simp.user: TRACE
+    org.springframework.messaging.simp.broker: TRACE
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
