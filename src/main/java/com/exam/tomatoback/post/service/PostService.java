@@ -14,7 +14,6 @@ import com.exam.tomatoback.post.repository.PostRepository;
 import com.exam.tomatoback.user.repository.UserRepository;
 
 import com.exam.tomatoback.web.dto.like.request.LikeResponse;
-import com.exam.tomatoback.web.dto.post.PostResponse;
 import com.exam.tomatoback.web.dto.post.post.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -209,9 +208,7 @@ public class PostService {
 
     public List<Post> getSellingPostByUserId(long userId){
 
-        List<Post> byUserIdAndStatus = postRepository.findByUserIdAndPostStatus(userId, PostStatus.SELLING);
-
-        return byUserIdAndStatus;
+        return postRepository.findByUserIdAndPostStatus(userId, PostStatus.SELLING);
     }
 
     public LikeResponse setFavorite(Long postId){

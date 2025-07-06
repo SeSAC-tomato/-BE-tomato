@@ -14,7 +14,7 @@ import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.repository.UserRepository;
 import com.exam.tomatoback.web.dto.chat.api.ChatResponse;
 import com.exam.tomatoback.web.dto.chat.websocket.ChatRequest;
-import com.exam.tomatoback.web.dto.post.PostResponse;
+import com.exam.tomatoback.web.dto.post.post.PostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -88,5 +88,14 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
 
 
 
-    List<Post> findByUserIdAndPostStatus(Long userId, PostStatus status);
+    @Query("""
+    SELECT p
+    FROM Post p
+    JOIN PostProgress pp ON p.id = pp.post.id
+    WHERE pp.user.id = :userId
+    AND pp.postStatus = :postStatus
+    ORDER BY p.updatedAt desc
+    
+""")
+    List<Post> findByUserIdAndPostStatus(@Param("userId")Long userId,@Param("postStatus") PostStatus status);
 }

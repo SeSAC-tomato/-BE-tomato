@@ -8,7 +8,7 @@ import com.exam.tomatoback.post.service.PostService;
 import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.service.UserService;
 import com.exam.tomatoback.web.dto.chat.api.*;
-import com.exam.tomatoback.web.dto.post.PostResponse;
+import com.exam.tomatoback.web.dto.post.post.PostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
