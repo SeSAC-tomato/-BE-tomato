@@ -2,7 +2,6 @@ package com.exam.tomatoback.web.dto.like.request;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
-import com.exam.tomatoback.post.model.Image;
 import com.exam.tomatoback.like.model.Like;
 import lombok.*;
 
