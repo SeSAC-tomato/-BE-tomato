@@ -6,6 +6,7 @@ import com.exam.tomatoback.auth.model.VerityType;
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.infrastructure.util.Constants;
+import com.exam.tomatoback.infrastructure.util.GeometryUtil;
 import com.exam.tomatoback.infrastructure.util.JwtUtil;
 import com.exam.tomatoback.user.model.Address;
 import com.exam.tomatoback.user.model.Provider;
@@ -14,12 +15,14 @@ import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.service.UserService;
 import com.exam.tomatoback.web.dto.auth.request.*;
 import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
+import com.exam.tomatoback.web.dto.auth.response.KakaoAddressResponse;
 import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Point;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,6 +48,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserDetailsService userDetailsService;
     private final MailService mailService;
     private final UserVerifyService userVerifyService;
+    private final KakaoLocalService kakaoLocalService;
 
     @Override
     public void register(RegisterRequest registerRequest) {
@@ -194,6 +198,10 @@ public class AuthServiceImpl implements AuthService {
         // 인증 토큰 삭제
         if (request.type().equals(VerityType.EMAIL)) {
             user.setVerify(true);
+            // 사용자의 주소를 좌표로 변환 하고 이를 db 에 저장
+            KakaoAddressResponse kakaoAddressResponse = kakaoLocalService.searchAddress(user.getAddress().getAddress());
+            Point point = GeometryUtil.exchangePoint(kakaoAddressResponse.getDocuments().get(0).getX(), kakaoAddressResponse.getDocuments().get(0).getY());
+            user.getAddress().setPoint(point);
             userVerifyService.delete(verify);
         }
     }
