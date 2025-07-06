@@ -31,8 +31,10 @@ spring:
       show-sql: true
       format-sql: true
   config:
-    import: classpath:tomato-db.yml, classpath:jwt-config.yml, classpath:mail.yml
+    import: classpath:tomato-db.yml, classpath:jwt-config.yml, classpath:mail.yml, classpath:kakao-security.yml
 
+rest-api:
+  kakao: ${kakao.rest-api}
 
 
 #logging:
