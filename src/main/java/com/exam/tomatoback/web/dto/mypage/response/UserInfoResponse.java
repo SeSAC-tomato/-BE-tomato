@@ -12,12 +12,16 @@ public record UserInfoResponse(
 
 ) {
     public static UserInfoResponse from(User user) {
+        String address = null;
+        if (user.getAddress() != null) {
+            address = user.getAddress().getAddress();
+        }
 
         return UserInfoResponse.builder()
                 .id(user.getId())
                 .nickname(user.getNickname())
                 .email(user.getEmail())
-                .address(user.getAddress().getAddress())
+                .address(address)
                 .build();
     }
 }
