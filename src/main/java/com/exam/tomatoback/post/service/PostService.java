@@ -2,6 +2,7 @@ package com.exam.tomatoback.post.service;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
+import com.exam.tomatoback.like.model.Like;
 import com.exam.tomatoback.like.repository.LikeRepository;
 import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.post.model.PostProgress;
@@ -12,6 +13,7 @@ import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.post.repository.PostRepository;
 import com.exam.tomatoback.user.repository.UserRepository;
 
+import com.exam.tomatoback.web.dto.like.request.LikeResponse;
 import com.exam.tomatoback.web.dto.post.post.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -197,6 +199,24 @@ public class PostService {
                     .orElseThrow(() -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND));
         } else {
             throw new TomatoException(TomatoExceptionCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public LikeResponse setFavorite(Long postId){
+        Post postFavorite = postRepository.findByIdAndDeletedFalse(postId)
+                .orElseThrow(() -> new TomatoException(
+                        TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
+        User currentUser = getCurrentUser();
+        Optional<Like> existingLike = likeRepository.findByPostAndUser(postFavorite, currentUser);
+
+        if(existingLike.isPresent()){
+            Like likeToDelete = existingLike.get();
+            likeRepository.delete(likeToDelete);
+            return LikeResponse.from(likeToDelete, false);
+        } else {
+            Like newLike = Like.builder().user(currentUser).post(postFavorite).build();
+            Like savedLike = likeRepository.save(newLike);
+            return LikeResponse.from(savedLike, true);
         }
     }
 

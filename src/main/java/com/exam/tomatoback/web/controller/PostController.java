@@ -81,5 +81,8 @@ public class PostController {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
-
+    @PostMapping("{userId}/{postId}/cart")
+    public ResponseEntity<?> setFavorite(@PathVariable Long postId){
+        return ResponseEntity.ok(CommonResponse.success(postService.setFavorite(postId)));
+    }
 }
