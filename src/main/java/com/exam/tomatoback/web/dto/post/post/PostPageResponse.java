@@ -1,8 +1,7 @@
-package com.exam.tomatoback.web.dto.post;
+package com.exam.tomatoback.web.dto.post.post;
 
 import com.exam.tomatoback.post.model.Post;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.Page;

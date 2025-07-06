@@ -22,7 +22,7 @@ public class Image {
     private Boolean mainImage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="post_id", nullable=false)
+    @JoinColumn(name="post_id", nullable=false, updatable=false)
     private Post post;
 
     @Column(nullable = false)

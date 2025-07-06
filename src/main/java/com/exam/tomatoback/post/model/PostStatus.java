@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum PostStatus {
-        SELLING("판매중"),
-        BOOKED("예약중"),
-        END("판매완료");
+        SELLING("SELLING"),
+        BOOKED("BOOKED"),
+        END("END");
 
         private final String currentStatus;
 
