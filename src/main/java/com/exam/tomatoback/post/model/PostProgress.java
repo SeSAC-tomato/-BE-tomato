@@ -17,14 +17,15 @@ public class PostProgress {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="post_id", nullable=false)
+    @JoinColumn(name="post_id", nullable=false, unique = true, updatable=false)
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="buyer_id", nullable=true)
+    @JoinColumn(name="user_id", nullable=false, updatable=false)
     private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PostStatus postStatus;
+    @Builder.Default
+    private PostStatus postStatus = PostStatus.SELLING;
 }
