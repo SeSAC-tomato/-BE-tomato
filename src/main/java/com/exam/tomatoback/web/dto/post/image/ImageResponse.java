@@ -1,4 +1,4 @@
-package com.exam.tomatoback.web.dto.post;
+package com.exam.tomatoback.web.dto.post.image;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
