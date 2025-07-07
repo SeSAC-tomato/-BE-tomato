@@ -1,9 +1,6 @@
 package com.exam.tomatoback.auth.service;
 
-import com.exam.tomatoback.web.dto.auth.request.EmailCheckRequest;
-import com.exam.tomatoback.web.dto.auth.request.LoginRequest;
-import com.exam.tomatoback.web.dto.auth.request.NicknameCheckRequest;
-import com.exam.tomatoback.web.dto.auth.request.RegisterRequest;
+import com.exam.tomatoback.web.dto.auth.request.*;
 import com.exam.tomatoback.web.dto.auth.response.EmailCheckResponse;
 import com.exam.tomatoback.web.dto.auth.response.NicknameCheckResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,4 +30,12 @@ public interface AuthService {
     void refresh(HttpServletRequest request, HttpServletResponse response);
 
     void logout(HttpServletResponse request);
+
+    void verify(VerifyRequest request);
+
+    void reverify(VerifyRequest request);
+
+    void findPassword(FindPasswordRequest request);
+
+    void changePassword(ChangePasswordRequest request);
 }

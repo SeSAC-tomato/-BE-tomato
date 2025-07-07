@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,6 +35,8 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    private Boolean verify;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
