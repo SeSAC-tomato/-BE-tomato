@@ -141,7 +141,8 @@ public class UserServiceImpl implements UserService {
 
     User user = repository.findById(userId).orElseThrow(()-> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND_IN_MYPAGE));
 
-    if(existsByNickname(request.getNickname())) {
+    // 닉네임이 변경되었고, 다른 사용자가 같은 닉네임을 사용하고 있는 경우에만 중복 체크
+    if (!user.getNickname().equals(request.getNickname()) && existsByNickname(request.getNickname())) {
       throw new TomatoException(TomatoExceptionCode.DUPLICATE_NICKNAME_IN_MYPAGE);
     }
     user.setNickname(request.getNickname());
