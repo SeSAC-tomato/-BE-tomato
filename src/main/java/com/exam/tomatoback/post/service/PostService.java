@@ -175,6 +175,15 @@ public class PostService {
         }
     }
 
+    public Post getPostNoMatterWhatById(long id){
+        return postRepository.findById(id).orElseThrow(() -> new TomatoException(TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
+    }
+
+    public List<Post> getSellingPostByUserId(long userId){
+
+        return postRepository.findByUserIdAndPostStatus(userId, PostStatus.SELLING);
+    }
+
     public LikeResponse setFavorite(Long postId){
         Post postFavorite = postRepository.findByIdAndDeletedFalse(postId)
                 .orElseThrow(() -> new TomatoException(
