@@ -34,12 +34,10 @@ public class MyUserController {
     @GetMapping("/me")
     public ResponseEntity<?> getMyInfo() {
         try {
-            User user = userService.getCurrentUser();
-            System.out.println("Current user: " + user.getEmail() + ", ID: " + user.getId());
+            User user = userService.getCurrentUser();            
             UserInfoResponse response = UserInfoResponse.from(user);
             return ResponseEntity.ok(CommonResponse.success(response));
-        } catch (Exception e) {
-            System.err.println("Error in getMyInfo: " + e.getMessage());
+        } catch (Exception e) {            
             e.printStackTrace();
             throw e;
         }
