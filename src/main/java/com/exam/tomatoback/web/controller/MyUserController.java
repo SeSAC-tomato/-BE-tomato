@@ -75,7 +75,7 @@ public class MyUserController {
     public ResponseEntity<?> getCartById(
             @PathVariable Long userId,
             @RequestParam(value = "currentPage", required = false, defaultValue = "0") Integer currentPage,
-            @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
+            @RequestParam(value = "size", required = false, defaultValue = "12") Integer size,
             @RequestParam(value = "likeSort", required = false, defaultValue = "LIKE_CREATED_AT") String likeSortStr
     ){
 
@@ -107,9 +107,9 @@ public class MyUserController {
     public ResponseEntity<?> getMyPosts(
             @PathVariable Long userId,
             @RequestParam(value = "currentSellingPage", required = false, defaultValue = "0") Integer currentSellingPage,
-            @RequestParam(value = "sellingSize", required = false, defaultValue = "10") Integer sellingSize,
+            @RequestParam(value = "sellingSize", required = false, defaultValue = "12") Integer sellingSize,
             @RequestParam(value = "currentSoldPage", required = false, defaultValue = "0") Integer currentSoldPage,
-            @RequestParam(value = "soldSize", required = false, defaultValue = "10") Integer soldSize
+            @RequestParam(value = "soldSize", required = false, defaultValue = "12") Integer soldSize
 
     ) {
         MyPageHistoryGetRequest request = MyPageHistoryGetRequest.builder()
