@@ -144,9 +144,35 @@ public enum TomatoExceptionCode {
      HttpStatus.FORBIDDEN,
      "TOMATO_AUTH_015",
      "이메일 인증이 완료되지 않은 사용자 압니다."
- );
+    ), CHAT_ACCESS_DENIED(
+            HttpStatus.FORBIDDEN,
+            "TOMATO_CHAT_001",
+            "권한이 없습니다."
+    ), CHAT_BAD_REQUEST(
+            HttpStatus.BAD_REQUEST,
+            "TOMATO_CHAT_002",
+            "잘못된 요청입니다."
+    ),
+    CHAT_ROOM_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "TOMATO_CHAT_003"
+            , "ROOM ID에 해당하는 ROOM을 찾을 수 없습니다."
+    ),
+    CHAT_CHAT_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "TOMATO_CHAT_004"
+            , "CHAT ID에 해당하는 CHAT 찾을 수 없습니다."
+    ),
+    CHAT_CHAT_LAST_READ_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "TOMATO_CHAT_005",
+            "CHAT LAST READ을 찾을 수 없습니다."),
+    CHAT_CHAT_EVENT_CAN_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "TOMATO_CHAT_006",
+            "CHAT EVENT를 찾을 수 없습니다.");
 
- private HttpStatus status;
- private String code;
- private String message;
+    private HttpStatus status;
+    private String code;
+    private String message;
 }

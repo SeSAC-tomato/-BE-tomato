@@ -3,6 +3,7 @@ package com.exam.tomatoback.post.repository;
 import com.exam.tomatoback.post.model.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.exam.tomatoback.post.model.PostStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -85,4 +86,16 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     Page<Post> findEndPostsByUserId(@Param("userId") Long userId, Pageable pageable);
 
 
+
+
+    @Query("""
+    SELECT p
+    FROM Post p
+    JOIN PostProgress pp ON p.id = pp.post.id
+    WHERE pp.user.id = :userId
+    AND pp.postStatus = :postStatus
+    ORDER BY p.updatedAt desc
+    
+""")
+    List<Post> findByUserIdAndPostStatus(@Param("userId")Long userId,@Param("postStatus") PostStatus status);
 }
