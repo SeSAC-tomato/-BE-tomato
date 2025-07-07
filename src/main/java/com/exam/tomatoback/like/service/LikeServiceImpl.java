@@ -42,9 +42,9 @@ public class LikeServiceImpl implements LikeService {
         switch (sort) {
             case LIKE_CREATED_AT -> posts = postRepository.findLikedPostsOrderByLikedAt(userId, pageable);
             case POPULARITY -> posts = postRepository.findLikedPostsOrderByPostLikeCountDesc(userId, pageable);
-            case POST_CREATED_AT -> {
+            case POST_UPDATED_AT -> {
                 pageable = PageRequest.of(request.getCurrentPage(), request.getSize(), Sort.by(Sort.Direction.DESC, sort.getFieldPath()));
-                posts = postRepository.findLikedPosts(userId, pageable);
+                posts = postRepository.findLikedPostsOrderByPostUpdatedAt(userId, pageable);
             }
             case PRICE -> posts = postRepository.findLikedPostsOrderByPrice(userId, pageable);
             default -> throw new TomatoException(TomatoExceptionCode.INVALID_SORT_OPTION_IN_MYPAGE);
@@ -86,7 +86,8 @@ public class LikeServiceImpl implements LikeService {
                             .map(Image::getUrl)
                             .orElse(null);
 
-                    return CartPost.builder()
+                    CartPost cartPost = CartPost.builder()
+                            .postId(post.getId())
                             .title(post.getTitle())
                             .price(post.getPrice())
                             .img(imageUrl)
@@ -95,6 +96,10 @@ public class LikeServiceImpl implements LikeService {
                             .postStatus(post.getPostProgress().getPostStatus())
                             .productCategory(post.getProductCategory())
                             .build();
+                    
+                    System.out.println("Created CartPost with postId: " + cartPost.getPostId() + ", title: " + cartPost.getTitle());
+                    
+                    return cartPost;
                 })
                 .toList();
     }
