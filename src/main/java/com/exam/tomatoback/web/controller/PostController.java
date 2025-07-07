@@ -1,7 +1,9 @@
 package com.exam.tomatoback.web.controller;
 
+import com.exam.tomatoback.infrastructure.util.PostImageServer;
 import com.exam.tomatoback.post.service.PostService;
 import com.exam.tomatoback.web.dto.common.CommonResponse;
+import com.exam.tomatoback.web.dto.post.image.ImageUploadRequest;
 import com.exam.tomatoback.web.dto.post.post.PostCreateRequest;
 import com.exam.tomatoback.web.dto.post.post.PostPageRequest;
 import com.exam.tomatoback.web.dto.post.post.PostResponse;
@@ -46,11 +48,7 @@ public class PostController {
     @PostMapping
     public ResponseEntity<?> createPost(
             @RequestBody PostCreateRequest postCreateRequest
-//            @RequestPart("postRequest") PostCreateRequest postCreateRequest,
-//            @RequestPart(name="imageFiles", required=true) List<MultipartFile> imageFiles,
-//            @RequestPart(name="imageMetadata",required=true ) List<ImageMetadataRequest> imageMetadatas
     ){
-//      PostResponse postResponse = postService.createPost(postCreateRequest, imageFiles, imageMetadatas);
         PostResponse postResponse = postService.createPost(postCreateRequest);
         return ResponseEntity.ok(CommonResponse.success(postResponse));
     }
@@ -81,8 +79,10 @@ public class PostController {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
-    @PostMapping("{userId}/{postId}/cart")
+
+    @PostMapping("{postId}/cart")
     public ResponseEntity<?> setFavorite(@PathVariable Long postId){
         return ResponseEntity.ok(CommonResponse.success(postService.setFavorite(postId)));
     }
+
 }

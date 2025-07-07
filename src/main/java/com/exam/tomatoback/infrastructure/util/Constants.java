@@ -23,4 +23,7 @@ public final class Constants {
     public static final String ACCESS_TOKEN_PREFIX = "Bearer ";
     public static final String AUTH_HEADER = "authorization";
     public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
+
+    //======== 이미지 저장 경로 ==========
+    public static final String POST_IMAGE_DIR = "./uploads/images";
 }

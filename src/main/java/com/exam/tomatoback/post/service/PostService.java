@@ -2,11 +2,14 @@ package com.exam.tomatoback.post.service;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
+import com.exam.tomatoback.infrastructure.util.Constants;
 import com.exam.tomatoback.like.model.Like;
 import com.exam.tomatoback.like.repository.LikeRepository;
+import com.exam.tomatoback.post.model.Image;
 import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.post.model.PostProgress;
 import com.exam.tomatoback.post.model.PostStatus;
+import com.exam.tomatoback.post.repository.ImageRepository;
 import com.exam.tomatoback.post.repository.PostProgressRepository;
 import com.exam.tomatoback.user.model.User;
 
@@ -14,6 +17,7 @@ import com.exam.tomatoback.post.repository.PostRepository;
 import com.exam.tomatoback.user.repository.UserRepository;
 
 import com.exam.tomatoback.web.dto.like.request.LikeResponse;
+import com.exam.tomatoback.web.dto.post.image.ImageCreateRequest;
 import com.exam.tomatoback.web.dto.post.post.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +38,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-//    private final ImageRepository imageRepository;
-//    private final ResourceLoader resourceLoader;
+    private final ImageRepository imageRepository;
     private final LikeRepository likeRepository;
     private final PostProgressRepository postProgressRepository;
 
@@ -56,6 +60,9 @@ public class PostService {
 
     //ID로 조회 (소프트 삭제제외)
     public PostResponseWithOwner getPostByIdDeleteFalse(Long id) {
+        Post post = postRepository.findByIdAndDeletedFalse(id).orElseThrow(() -> new TomatoException(
+                TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
+
         return postRepository.findByIdAndDeletedFalse(id).map(PostResponseWithOwner::from)
                 .orElseThrow(() -> new TomatoException(
                         TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
@@ -63,10 +70,7 @@ public class PostService {
 
     //Post 생성
     @Transactional
-    public PostResponse createPost(PostCreateRequest postCreateRequest
-//                                   ,List<MultipartFile> imageFiles,
-//                                   List<ImageMetadataRequest> imageMetadatas
-    ) {
+    public PostResponse createPost(PostCreateRequest postCreateRequest) {
 
         //DB로 보낼 Post를 생성 (User설정 후 커밋대기)
         User currentUser = getCurrentUser();
@@ -78,61 +82,30 @@ public class PostService {
                 .post(savedPost)
                 .postStatus(PostStatus.SELLING)
                 .build();
-        System.out.println("✅ 초기 상태 (빌더 생성 후): " + initialPostProgress.getPostStatus());
         initialPostProgress.setPost(savedPost);
         postProgressRepository.save(initialPostProgress);
         post.setPostProgress(initialPostProgress);
         Post finalPost = postRepository.save(post);
-
-        //이미지 처리
-//        if (imageFiles == null || imageFiles.isEmpty()) {
-//            throw new TomatoException(TomatoExceptionCode.IMAGE_NOT_FOUND);
-//        }
-//        if (imageMetadatas == null || imageMetadatas.isEmpty()) {
-//            throw new TomatoException(TomatoExceptionCode.MAIN_IMAGE_NOT_FOUND);
-//        }
 //
-//        if(imageFiles.size() != imageMetadatas.size()){
-//            throw new TomatoException(TomatoExceptionCode.IMAGE_INFO_NOT_MATCH);
-//        }
-//
-//        Map<String, ImageMetadataRequest> imageMetadataMap = imageMetadatas
-//                .stream()
-//                .collect(Collectors.toMap(ImageMetadataRequest::getOriginalFileName, metadata -> metadata));
-//
-//        List<Image> imagesToSave = new ArrayList<>();
-//
-//        for (int i = 0; i < imageFiles.size(); i++) {
-//            MultipartFile file = imageFiles.get(i);
-//            String uuid = UUID.randomUUID().toString();
-//            String originalNameFromMultipart = file.getOriginalFilename();
-//            String originalNameSafe = (originalNameFromMultipart != null) ? originalNameFromMultipart : "unknown_file";
-//            String extension = "";
-//            if (originalNameSafe.lastIndexOf(".") != -1) {
-//                extension = originalNameSafe.substring(originalNameSafe.lastIndexOf("."));
-//            }
-//
-//            String savedFileName = uuid + extension;
-//            Path fileSavePath = Paths.get(uploadDir, savedFileName);
-//
-//            try{
-//                Files.copy(file.getInputStream(), fileSavePath);
-//            }catch (IOException e){
-//                throw new TomatoException(TomatoExceptionCode.IMAGE_PROCESS_FAILURE);
-//            }
-//
-//            boolean isMainBoolean = ( i == 0 );
-//            Image image = Image.builder()
-//                    .url(IMAGE_BASE_URL_PATH)
-//                    .savedName(savedFileName)
-//                    .originalName(originalNameSafe)
-//                    .mainImage(isMainBoolean)
-//                    .post(savedPost)
-//                    .build();
-//
-//            imagesToSave.add(image);
-//        }
-//        imageRepository.saveAll(imagesToSave);
+        if (postCreateRequest.getImageInfo() != null && !postCreateRequest.getImageInfo().isEmpty()) {
+            List<Image> imagesToSave = new ArrayList<>();
+            for (ImageCreateRequest imageRequest : postCreateRequest.getImageInfo()) {
+                // Image 엔티티 생성
+                String savedName = imageRequest.getSavedName();
+                String originalName = imageRequest.getOriginalName();
+                Boolean mainImage = imageRequest.getMainImage();
+                String url = Constants.POST_IMAGE_DIR;
+                Image postImage = Image.builder()
+                        .savedName(imageRequest.getSavedName())
+                        .originalName(imageRequest.getOriginalName())
+                        .mainImage(imageRequest.getMainImage())
+                        .post(finalPost)
+                        .url(url)
+                        .build();
+                imagesToSave.add(postImage);
+            }
+            imageRepository.saveAll(imagesToSave);
+        }
         return PostResponse.from(finalPost);
     }
 

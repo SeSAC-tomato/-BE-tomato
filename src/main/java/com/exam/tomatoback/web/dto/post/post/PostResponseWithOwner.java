@@ -1,13 +1,18 @@
 package com.exam.tomatoback.web.dto.post.post;
 
+import com.exam.tomatoback.post.model.Image;
 import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.post.model.PostStatus;
 import com.exam.tomatoback.post.model.ProductCategory;
+import com.exam.tomatoback.web.dto.post.image.ImageReponseShort;
+import com.exam.tomatoback.web.dto.post.image.ImageResponse;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.internal.log.SubSystemLogging;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -26,11 +31,15 @@ public class PostResponseWithOwner {
     private LocalDateTime updatedAt;
     private Long userId;
     private String nickname;
+    private List<ImageReponseShort> images;
 
     public static PostResponseWithOwner from(Post post) {
-        log.info(post.getUser().getNickname());
-        log.info(post.getUser().toString());
-
+        List<ImageReponseShort> imageResponses = null;
+        if (post.getImages() != null) {
+            imageResponses = post.getImages().stream()
+                    .map(ImageReponseShort::from)
+                    .collect(Collectors.toList());
+        }
         return PostResponseWithOwner.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -42,6 +51,7 @@ public class PostResponseWithOwner {
                 .updatedAt(post.getUpdatedAt())
                 .userId(post.getUser().getId())
                 .nickname(post.getUser().getNickname())
+                .images(imageResponses)
                 .build();
     }
 }
