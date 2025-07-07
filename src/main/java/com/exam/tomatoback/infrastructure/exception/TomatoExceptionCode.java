@@ -140,6 +140,10 @@ public enum TomatoExceptionCode {
      HttpStatus.CONFLICT,
      "TOMATO_AUTH_014",
      "이미 사용된 비밀번호입니다. 다른 비밀번호를 입력해 주세요."
+ ), NEED_VERIFY_USER(
+     HttpStatus.FORBIDDEN,
+     "TOMATO_AUTH_015",
+     "이메일 인증이 완료되지 않은 사용자 압니다."
  );
 
  private HttpStatus status;

@@ -103,6 +103,16 @@ public class AuthServiceImpl implements AuthService {
     public void login(LoginRequest loginRequest, HttpServletResponse response) {
         // 사용자 정보 조회
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
+        User user = userService.getOptionalUser(loginRequest.getEmail()).orElseThrow(
+            () -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND)
+        );
+        // 인증된 사용자 여부를 확인
+        // 이메일 인증이 완료가 되자 않은 사용자의 경우
+        // 인증이 완료된 사용자의 경우 verify 필드가 true 로 설정이 됨
+        if (!user.getVerify()) {
+            throw new TomatoException(TomatoExceptionCode.NEED_VERIFY_USER);
+        }
         // 인증에 성공을 할 경우 정보를 저장
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         UserDetails userDetails = (UserDetails) authenticate.getPrincipal();
