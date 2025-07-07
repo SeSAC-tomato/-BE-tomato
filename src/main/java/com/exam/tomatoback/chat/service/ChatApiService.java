@@ -31,6 +31,7 @@ public class ChatApiService {
     private final UserService userService;
     private final RoomProgressRepository roomProgressRepository;
     private final ChatResponseService chatResponseService;
+    private final ChatPostResponseService chatPostResponseService;
 
     // 방을 조회, 없으면 생성해서 조회
     public long getChatRoomIdOrCreateRoomId(ChatRoomRequest chatRoomRequest) {
@@ -88,7 +89,6 @@ public class ChatApiService {
                 chatListSingleResponse.setLastChatTime(lastChat.getCreatedAt());
 
 
-
                 boolean existLastRead = chatLastReadService.existLastReadByChatAndRoomAndUser(room, isBuyer ? buyer : seller);
                 if (existLastRead) {
                     ChatLastRead chatLastRead = chatLastReadService.getLastReadByChatAndRoomAndUser(room, isBuyer ? buyer : seller);
@@ -110,7 +110,9 @@ public class ChatApiService {
                         ChatEvents chatEventByChatId = chatEventsService.getChatEventByChatId(lastChat.getId());
 
                         chatResponse.setTargetId(String.valueOf(chatEventByChatId.getTargetPost().getId()));
-                        chatResponse.setPost(PostResponse.from(chatEventByChatId.getTargetPost()));
+                        Post targetPost = chatEventByChatId.getTargetPost();
+                        ChatPostResponse chatPostResponse = chatPostResponseService.from(targetPost);
+                        chatResponse.setPost(chatPostResponse);
 
                         boolean isSender = lastChat.getSender().getId().equals(currentUser.getId());
                         boolean isDone = lastChat.getIsDone();
@@ -149,7 +151,7 @@ public class ChatApiService {
 
         ChatPageResponse chatPageResponse = new ChatPageResponse();
 
-        chatResponseService.setPageInfo(chats,chatPageResponse);
+        chatResponseService.setPageInfo(chats, chatPageResponse);
 
 
         chatPageResponse.setRoomId(roomId);
@@ -179,7 +181,8 @@ public class ChatApiService {
                 chatResponse.setContent(msg);
 
                 chatResponse.setTargetId(String.valueOf(targetPost.getId()));
-                chatResponse.setPost(PostResponse.from(targetPost));
+                ChatPostResponse chatPostResponse = chatPostResponseService.from(targetPost);
+                chatResponse.setPost(chatPostResponse);
 
             }
             chatResponseList.add(chatResponse);
@@ -214,7 +217,12 @@ public class ChatApiService {
             RoomProgress roomProgress = byId.get();
             chatRoomInfoResponse.setRoomProgress(roomProgress.getRoomProgress());
             chatRoomInfoResponse.setRoomId(roomId);
-            chatRoomInfoResponse.setTargetPost(PostResponse.from(roomProgress.getPost()));
+
+            Post post = roomProgress.getPost();
+
+            ChatPostResponse chatPostResponse = chatPostResponseService.from(post);
+
+            chatRoomInfoResponse.setTargetPost(chatPostResponse);
             chatRoomInfoResponse.setRequestUserId(roomProgress.getUser().getId());
         }
 
@@ -227,7 +235,7 @@ public class ChatApiService {
 
         ChatUserSellingListResponse response = new ChatUserSellingListResponse();
         response.setTargetUserId(userId);
-        response.setPosts(sellingPostByUserId.stream().map(PostResponse::from).toList());
+        response.setPosts(sellingPostByUserId.stream().map(chatPostResponseService::from).toList());
 
         return response;
     }

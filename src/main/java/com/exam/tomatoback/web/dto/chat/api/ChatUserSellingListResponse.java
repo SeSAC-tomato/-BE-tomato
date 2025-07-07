@@ -12,5 +12,5 @@ import java.util.List;
 @NoArgsConstructor
 public class ChatUserSellingListResponse {
     private long targetUserId;
-    private List<PostResponse> posts;
+    private List<ChatPostResponse> posts;
 }

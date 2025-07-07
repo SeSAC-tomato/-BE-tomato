@@ -45,7 +45,7 @@ public class Chat {
     private ChatType chatType;
 
     // 이벤트 수락시 보내는 응답 -> 수락시 true ( 예약, 거래확정만 )
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = true)
     private Boolean isDone;
 
     @Override

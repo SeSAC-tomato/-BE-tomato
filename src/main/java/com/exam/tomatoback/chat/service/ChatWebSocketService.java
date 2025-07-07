@@ -9,9 +9,13 @@ import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.infrastructure.util.ChatImageSaver;
 import com.exam.tomatoback.infrastructure.util.Constants;
 import com.exam.tomatoback.post.model.Post;
+import com.exam.tomatoback.post.model.PostProgress;
+import com.exam.tomatoback.post.model.PostStatus;
+import com.exam.tomatoback.post.repository.PostProgressRepository;
 import com.exam.tomatoback.post.service.PostService;
 import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.repository.UserRepository;
+import com.exam.tomatoback.web.dto.chat.api.ChatPostResponse;
 import com.exam.tomatoback.web.dto.chat.api.ChatResponse;
 import com.exam.tomatoback.web.dto.chat.websocket.ChatRequest;
 import com.exam.tomatoback.web.dto.post.post.PostResponse;
@@ -36,12 +40,16 @@ public class ChatWebSocketService {
     private final ChatImageSaver chatImageSaver;
     private final PostService postService;
     private final RoomProgressRepository roomProgressRepository;
+    private final ChatPostResponseService chatPostResponseService;
+    private final PostProgressRepository postProgressRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public ChatResponse saveChat(long roomId, Principal principal, ChatRequest chatRequest) throws IOException {
 
         // htmlEscape
-        chatRequest.setContent(HtmlUtils.htmlEscape(chatRequest.getContent()));
+        if (chatRequest.getContent() != null) {
+            chatRequest.setContent(HtmlUtils.htmlEscape(chatRequest.getContent()));
+        }
 
 
         boolean equals = chatRequest.getRoomId().equals(roomId);
@@ -59,7 +67,7 @@ public class ChatWebSocketService {
         newChat.setRoom(roomById);
         newChat.setContent(chatRequest.getContent());
         newChat.setSender(sender);
-        newChat.setIsDone(chatRequest.getIsDone());
+        newChat.setIsDone(chatRequest.getIsDone() != null && chatRequest.getIsDone());
         Chat savedChat = chatService.save(newChat);
 
 
@@ -116,9 +124,10 @@ public class ChatWebSocketService {
 
                 // 추가 응답
                 chatResponse.setTargetId(String.valueOf(saved.getTargetPost().getId()));
-                chatResponse.setPost(PostResponse.from(saved.getTargetPost()));
+                ChatPostResponse chatPostResponse = chatPostResponseService.from(saved.getTargetPost());
+                chatResponse.setPost(chatPostResponse);
 
-                chatResponse.setContent("✅ 진행 상황을 확인해주세요!");
+                chatResponse.setContent("진행 상황을 확인해주세요!");
             }
         }
 
@@ -135,9 +144,15 @@ public class ChatWebSocketService {
 
             if (roomProgressEnum == RoomProgressEnum.BOOK_REQUEST) {
                 roomProgress.setRoomProgress(RoomProgressEnum.BOOKED);
+                roomProgress.setUser(sender);
                 RoomProgress save = roomProgressRepository.save(roomProgress);
 
                 // 포스트 예약 상태로  여기서 바꾸면 될 듯 -> 추가 예정
+                PostProgress postProgress = post.getPostProgress();
+                postProgress.setPostStatus(PostStatus.BOOKED);
+
+                postProgressRepository.save(postProgress);
+                // 될 지 모르겠음
 
             } else {
                 System.out.println("잘못된 코드 흐름임");
@@ -146,6 +161,8 @@ public class ChatWebSocketService {
         } else {
             // 예약 이벤트 받았고, 없음 -> 예약 요청
             RoomProgress roomProgress = new RoomProgress();
+            roomProgress.setPost(post);
+            roomProgress.setRoom(room);
             roomProgress.setRoomProgress(RoomProgressEnum.BOOK_REQUEST);
             roomProgress.setUser(sender);
 
@@ -156,17 +173,22 @@ public class ChatWebSocketService {
     public void whenEventEnd(Room room, User sender, Post post) {
         Optional<RoomProgress> byId = roomProgressRepository.findById(room.getId());
 
-        if (byId.isPresent()) {
+        if (byId.isPresent() && byId.get().getRoomProgress() == RoomProgressEnum.END_REQUEST) {
             // 거래 완료 이벤트 받았고, 이미 있음 -> 요청 수락 -> 상황 종료로 지움
             roomProgressRepository.deleteById(room.getId());
 
 
             // 여기서 거래 완료 처리하면 될듯 -> 추가 예정
+            PostProgress postProgress = post.getPostProgress();
+            postProgress.setPostStatus(PostStatus.END);
+
+            postProgressRepository.save(postProgress);
+            // 될지 모르겠음
 
 
         } else {
             // 거래 완료 이벤트 받았고, 없음 -> 완료 요청
-            RoomProgress roomProgress = new RoomProgress();
+            RoomProgress roomProgress = byId.get();
             roomProgress.setRoomProgress(RoomProgressEnum.END_REQUEST);
             roomProgress.setUser(sender);
 
@@ -181,6 +203,13 @@ public class ChatWebSocketService {
         if (byId.isPresent()) {
             // 거래 취소 요청 -> RoomProgress 없앰
             roomProgressRepository.deleteById(room.getId());
+
+            PostProgress postProgress = post.getPostProgress();
+
+            postProgress.setPostStatus(PostStatus.SELLING);
+            postProgressRepository.save(postProgress);
+
+            // 될지 모르겠음
 
         } else {
             System.out.println("잘못된 코드 흐름");
