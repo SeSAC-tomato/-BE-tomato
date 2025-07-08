@@ -38,35 +38,4 @@ public class TesController {
         return map;
     }
 
-
-    @GetMapping("/images/{filename}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
-        try {
-            Path filePath = Paths.get(Constants.CHAT_IMAGE_DIR).resolve(filename).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-
-            if (!resource.exists()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            // 간단하게 이미지로 한정 (jpg/png/gif 등)
-            String contentType = "application/octet-stream";
-            if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
-                contentType = "image/jpeg";
-            } else if (filename.endsWith(".png")) {
-                contentType = "image/png";
-            } else if (filename.endsWith(".gif")) {
-                contentType = "image/gif";
-            }
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                    .body(resource);
-
-        } catch (MalformedURLException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
 }
