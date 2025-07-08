@@ -1,18 +1,23 @@
 package com.exam.tomatoback.user.service;
 
-import com.exam.tomatoback.infrastructure.exception.TomatoException;
-import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
+import com.exam.tomatoback.auth.service.KakaoLocalService;
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.user.model.Address;
 import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.user.repository.UserRepository;
+import com.exam.tomatoback.web.dto.auth.response.KakaoAddressResponse;
 import com.exam.tomatoback.web.dto.mypage.request.PasswordUpdateRequest;
 import com.exam.tomatoback.web.dto.mypage.request.UserUpdateRequest;
 import com.exam.tomatoback.web.dto.mypage.response.PasswordUpdatedResponse;
+import com.exam.tomatoback.web.dto.mypage.response.UserInfoResponse;
 import com.exam.tomatoback.web.dto.mypage.response.UserResponse;
 import com.exam.tomatoback.web.dto.mypage.response.UserUpdatedResponse;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,16 +27,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.exam.tomatoback.infrastructure.util.GeometryUtil;
 import java.util.Optional;
 
 import static com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode.USER_NOT_FOUND_IN_MYPAGE;
+import com.exam.tomatoback.infrastructure.util.GeometryUtil;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
   private final UserRepository repository;
   private final PasswordEncoder passwordEncoder;
+  private final KakaoLocalService kakaoLocalService;
 
   @Override
   public User save(User user) {
@@ -93,6 +100,8 @@ public class UserServiceImpl implements UserService {
     }
   }
 
+
+
   @Override
   public UserDetails getCurrentUserDetails() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -134,28 +143,49 @@ public class UserServiceImpl implements UserService {
   @Transactional
   @Override
   public UserUpdatedResponse updateUserById(Long userId, UserUpdateRequest request) {
+    User user = repository.findById(userId)
+        .orElseThrow(() -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND_IN_MYPAGE));
 
-//    User certifiedUserId = getCurrentUser();
-//
-//    if (!certifiedUserId.equals(userId)) { throw new TomatoException(TomatoExceptionCode.USER_MISMATCH_IN_MYPAGE);}
-
-    User user = repository.findById(userId).orElseThrow(()-> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND_IN_MYPAGE));
-
-    // 닉네임이 변경되었고, 다른 사용자가 같은 닉네임을 사용하고 있는 경우에만 중복 체크
+    // 닉네임 중복 체크
     if (!user.getNickname().equals(request.getNickname()) && existsByNickname(request.getNickname())) {
-      throw new TomatoException(TomatoExceptionCode.DUPLICATE_NICKNAME_IN_MYPAGE);
+        throw new TomatoException(TomatoExceptionCode.DUPLICATE_NICKNAME_IN_MYPAGE);
     }
     user.setNickname(request.getNickname());
 
+    // 주소 정보 업데이트
+    KakaoAddressResponse kakaoResponse = kakaoLocalService.searchAddress(request.getAddress());
+    if (kakaoResponse.getDocuments() == null || kakaoResponse.getDocuments().isEmpty()) {
+        throw new TomatoException(TomatoExceptionCode.ADDRESS_NOT_FOUND);
+    }
+    KakaoAddressResponse.Document document = kakaoResponse.getDocuments().get(0);
+    KakaoAddressResponse.Address addr = document.getAddress();
+
+    String sido = addr.getRegion_1depth_name();
+    String sigungu = addr.getRegion_2depth_name();
+    String dong = addr.getRegion_3depth_name();
+    Double x = addr.getX();
+    Double y = addr.getY();
+    GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+    Point point = geometryFactory.createPoint(new Coordinate(x, y));
+
+    // Address 엔티티에 값 세팅
     Address address = user.getAddress();
-    if(address != null) {
-      address.setAddress(request.getAddress());
-    } else{
-      Address newAddress = Address.builder()
-              .user(user)
-              .address(request.getAddress())
-              .build();
-      user.setAddress(newAddress);
+    if (address != null) {
+        address.setAddress(request.getAddress());
+        address.setSido(sido);
+        address.setSigungu(sigungu);
+        address.setDong(dong);
+        address.setPoint(point);
+    } else {
+        Address newAddress = Address.builder()
+            .user(user)
+            .address(request.getAddress())
+            .sido(sido)
+            .sigungu(sigungu)
+            .dong(dong)
+            .point(point)
+            .build();
+        user.setAddress(newAddress);
     }
 
     return new UserUpdatedResponse(user.getNickname(), user.getAddress() != null ? user.getAddress().getAddress() : null);
@@ -191,5 +221,11 @@ public class UserServiceImpl implements UserService {
 
   public User getUserByUserId(long userId) {
     return repository.findById(userId).orElseThrow(() -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND));
+  }
+  // UserService.java
+  @Override
+  public UserInfoResponse getCurrentUserInfo() {
+    User user = getCurrentUser(); // 내부 로직
+    return UserInfoResponse.from(user); // DTO로 변환까지 여기서 수행
   }
 }
