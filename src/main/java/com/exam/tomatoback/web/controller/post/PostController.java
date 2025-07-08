@@ -1,9 +1,8 @@
-package com.exam.tomatoback.web.controller;
+package com.exam.tomatoback.web.controller.post;
 
-import com.exam.tomatoback.infrastructure.util.PostImageServer;
+import com.exam.tomatoback.post.repository.AddressRepository;
 import com.exam.tomatoback.post.service.PostService;
 import com.exam.tomatoback.web.dto.common.CommonResponse;
-import com.exam.tomatoback.web.dto.post.image.ImageUploadRequest;
 import com.exam.tomatoback.web.dto.post.post.PostCreateRequest;
 import com.exam.tomatoback.web.dto.post.post.PostPageRequest;
 import com.exam.tomatoback.web.dto.post.post.PostResponse;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final AddressRepository addressRepository;
 
     //Post전체조회
     @GetMapping
@@ -38,7 +38,6 @@ public class PostController {
     }
 
     //Post개별조회
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable Long id) {
         return ResponseEntity.ok(CommonResponse.success(postService.getPostByIdDeleteFalse(id)));
@@ -85,4 +84,8 @@ public class PostController {
         return ResponseEntity.ok(CommonResponse.success(postService.setFavorite(postId)));
     }
 
+    @GetMapping("region")
+    public ResponseEntity<?> getRegionInfo(){
+        return ResponseEntity.ok(CommonResponse.success(postService.getAllDongs()));
+    }
 }

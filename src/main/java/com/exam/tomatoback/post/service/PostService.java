@@ -9,8 +9,10 @@ import com.exam.tomatoback.post.model.Image;
 import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.post.model.PostProgress;
 import com.exam.tomatoback.post.model.PostStatus;
+import com.exam.tomatoback.post.repository.AddressRepository;
 import com.exam.tomatoback.post.repository.ImageRepository;
 import com.exam.tomatoback.post.repository.PostProgressRepository;
+import com.exam.tomatoback.user.model.Address;
 import com.exam.tomatoback.user.model.User;
 
 import com.exam.tomatoback.post.repository.PostRepository;
@@ -21,6 +23,8 @@ import com.exam.tomatoback.web.dto.post.image.ImageCreateRequest;
 import com.exam.tomatoback.web.dto.post.post.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,31 +46,75 @@ public class PostService {
     private final ImageRepository imageRepository;
     private final LikeRepository likeRepository;
     private final PostProgressRepository postProgressRepository;
-
-//    @Value("${file.upload.dir}")
-//    private String uploadDir;
-//    private static final String IMAGE_BASE_URL_PATH = "/upload/images/";
+    private final AddressRepository addressRepository;
 
     //Post 전체조회 (소프트 삭제 제외)
-    public PostPageResponse getAllPostDeleteFalse(Pageable pageable) {
+    public PostPageResponseWithImageAndIsLiked getAllPostDeleteFalse(Pageable pageable) {
         Page<Post> postPage = postRepository.findAllByDeletedFalse(pageable);
-        return PostPageResponse.from(postPage);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isLogin = authentication != null && authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken);
+        if (isLogin) {
+           Long currentUserId = getCurrentUser().getId();
+           List<Long> postIds = postPage.getContent().stream().map(Post::getId).toList();
+           Set<Long> likedPostIds = likeRepository.findLikedPostIds(currentUserId, postIds);
+           List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
+               .map(post -> {
+                Boolean isLiked = likedPostIds.contains(post.getId());
+                return PostResponseWithImageAndIsLiked.from(post, isLiked);
+               }).toList();
+           return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
+        } else {
+           List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
+                .map(post -> {
+                    Boolean isLiked = false;
+                    return PostResponseWithImageAndIsLiked.from(post, isLiked);
+                }).toList();
+        return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
+        }
     }
 
     //Post 일부조회 (소프트삭제 제외)
-    public PostPageResponse getSomePostDeleteFalse(PostPageRequest postPageRequest, Pageable pageable) {
+    public PostPageResponseWithImageAndIsLiked getSomePostDeleteFalse(PostPageRequest postPageRequest, Pageable pageable) {
         Page<Post> postPage = postRepository.searchWithFiltersDeleteFalse(postPageRequest, pageable);
-        return PostPageResponse.from(postPage);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isLogin = authentication != null && authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken);
+        if (isLogin) {
+            Long currentUserId = getCurrentUser().getId();
+            List<Long> postIds = postPage.getContent().stream().map(Post::getId).toList();
+            Set<Long> likedPostIds = likeRepository.findLikedPostIds(currentUserId, postIds);
+            List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
+                    .map(post -> {
+                        Boolean isLiked = likedPostIds.contains(post.getId());
+                        return PostResponseWithImageAndIsLiked.from(post, isLiked);
+                    }).toList();
+            return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
+        } else {
+            List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
+                    .map(post -> {
+                        Boolean isLiked = false;
+                        return PostResponseWithImageAndIsLiked.from(post, isLiked);
+                    }).toList();
+            return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
+        }
     }
 
     //ID로 조회 (소프트 삭제제외)
     public PostResponseWithOwner getPostByIdDeleteFalse(Long id) {
         Post post = postRepository.findByIdAndDeletedFalse(id).orElseThrow(() -> new TomatoException(
                 TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
-
-        return postRepository.findByIdAndDeletedFalse(id).map(PostResponseWithOwner::from)
-                .orElseThrow(() -> new TomatoException(
-                        TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isLogin = authentication != null && authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken);
+        if (isLogin) {
+            Long currentUserId = getCurrentUser().getId();
+            Boolean isLiked = likeRepository.findByUserIdAndPostId(currentUserId,id).isEmpty();
+            return PostResponseWithOwner.from(post, isLiked);
+        } else {
+            Boolean isLiked = false;
+            return PostResponseWithOwner.from(post, isLiked);
+        }
     }
 
     //Post 생성
@@ -155,12 +204,12 @@ public class PostService {
         return PostResponse.from(postRepository.save(pullPost));
     }
 
-
-
     //User정보 조회
     public User getCurrentUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null ||
+                !authentication.isAuthenticated() ||
+                authentication instanceof AnonymousAuthenticationToken) {
             throw new TomatoException(TomatoExceptionCode.USER_NOT_FOUND);
         }
         Object principal = authentication.getPrincipal();
@@ -200,6 +249,17 @@ public class PostService {
             Like savedLike = likeRepository.save(newLike);
             return LikeResponse.from(savedLike, true);
         }
+    }
+
+    public RegionResponse getAllDongs(){
+        List<String> dongs = addressRepository.findAll().stream()
+                .map(Address::getDong)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        return RegionResponse.builder()
+                .regions(dongs)
+                .build();
     }
 
 }

@@ -1,8 +1,7 @@
-package com.exam.tomatoback.web.controller;
+package com.exam.tomatoback.web.controller.post;
 
 import com.exam.tomatoback.infrastructure.util.PostImageServer;
 import com.exam.tomatoback.web.dto.common.CommonResponse;
-import com.exam.tomatoback.web.dto.common.ExceptionResponse;
 import com.exam.tomatoback.web.dto.post.image.ImageUploadRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
