@@ -188,4 +188,8 @@ public class UserServiceImpl implements UserService {
             .build();
   }
 
+
+  public User getUserByUserId(long userId) {
+    return repository.findById(userId).orElseThrow(() -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND));
+  }
 }
