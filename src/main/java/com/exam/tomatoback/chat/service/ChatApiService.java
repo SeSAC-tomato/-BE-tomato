@@ -211,6 +211,8 @@ public class ChatApiService {
     // 거래 상황 조회
     public ChatRoomInfoResponse getRoomInfo(long roomId) {
         Optional<RoomProgress> byId = roomProgressRepository.findById(roomId);
+        User currentUser = userService.getCurrentUser();
+        roomService.hasAuth(roomId, currentUser);
 
         ChatRoomInfoResponse chatRoomInfoResponse = new ChatRoomInfoResponse();
         if (byId.isPresent()) {
