@@ -34,8 +34,8 @@ public class MyUserController {
     @GetMapping("/me")
     public ResponseEntity<?> getMyInfo() {
         try {
-            User user = userService.getCurrentUser();            
-            UserInfoResponse response = UserInfoResponse.from(user);
+//            User user = userService.getCurrentUser();
+            UserInfoResponse response = userService.getCurrentUserInfo();
             return ResponseEntity.ok(CommonResponse.success(response));
         } catch (Exception e) {            
             e.printStackTrace();
@@ -74,24 +74,24 @@ public class MyUserController {
             @PathVariable Long userId,
             @RequestParam(value = "currentPage", required = false, defaultValue = "0") Integer currentPage,
             @RequestParam(value = "size", required = false, defaultValue = "12") Integer size,
-            @RequestParam(value = "likeSort", required = false, defaultValue = "LIKE_CREATED_AT") String likeSortStr
+            @RequestParam(value = "likeSort", required = false, defaultValue = "LIKE_CREATED_AT") LikeSort likeSort
     ){
 
-        LikeSort likeSort;
-        try {
-            likeSort = LikeSort.valueOf(likeSortStr);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 정렬 기준입니다.");
-        }
+//        LikeSort likeSort;
+//        try {
+//            likeSort = LikeSort.valueOf(likeSortStr);
+//        } catch (IllegalArgumentException e) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 정렬 기준입니다.");
+//        }
+//
+//
+//        CartGetRequest request = CartGetRequest.builder()
+//                .currentPage(currentPage)
+//                .size(size)
+//                .likeSort(likeSort)
+//                .build();
 
-
-        CartGetRequest request = CartGetRequest.builder()
-                .currentPage(currentPage)
-                .size(size)
-                .likeSort(likeSort)
-                .build();
-
-        CartGetResponse response = likeService.getCartByUserId(userId, request);
+        CartGetResponse response = likeService.getCartByUserId(userId, currentPage, size, likeSort);
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 
