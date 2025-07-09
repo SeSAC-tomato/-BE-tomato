@@ -21,8 +21,10 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     Page<Post> findPostsByUserId(Long userId, Pageable pageable);
 
     @Query("""
-    SELECT l.post FROM Like l
+    SELECT l.post
+    FROM Like l
     WHERE l.user.id = :userId
+    AND l.post.deleted = false
     ORDER BY l.createdAt DESC
 """)
     Page<Post> findLikedPostsOrderByLikedAt(@Param("userId") Long userId, Pageable pageable);
@@ -30,6 +32,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     @Query("""
     SELECT l.post FROM Like l
     WHERE l.user.id = :userId
+    AND l.post.deleted = false
     ORDER BY l.post.updatedAt DESC
 """)
     Page<Post> findLikedPostsOrderByPostUpdatedAt(@Param("userId") Long userId, Pageable pageable);
@@ -37,6 +40,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     @Query("""
     SELECT l.post FROM Like l
     WHERE l.user.id = :userId
+    AND l.post.deleted = false
     ORDER BY l.post.price DESC
 """)
     Page<Post> findLikedPostsOrderByPrice(@Param("userId") Long userId, Pageable pageable);
@@ -47,6 +51,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
         FROM posts p
         JOIN likes l1 ON p.id = l1.post_id
         WHERE l1.user_id = :userId
+        AND p.deleted = false
         GROUP BY p.id
         ORDER BY (
             SELECT COUNT(*) FROM likes l2 WHERE l2.post_id = p.id
@@ -57,7 +62,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
             SELECT p.id
             FROM posts p
             JOIN likes l1 ON p.id = l1.post_id
-            WHERE l1.user_id = :userId
+            WHERE l1.user_id = :userId                
+            AND p.deleted = false
             GROUP BY p.id
         ) AS counted
     """,
@@ -70,6 +76,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     FROM Post p
     WHERE p.user.id = :userId
     AND p.postProgress.postStatus = 'SELLING'
+    AND p.deleted = false
     ORDER BY p.updatedAt DESC
     
 """)
@@ -81,6 +88,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     JOIN PostProgress pp ON p.id = pp.post.id
     WHERE p.user.id = :userId
     AND pp.postStatus = 'END'
+    AND p.deleted = false
     ORDER BY p.updatedAt desc
     
 """)
@@ -95,6 +103,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     JOIN PostProgress pp ON p.id = pp.post.id
     WHERE pp.user.id = :userId
     AND pp.postStatus = :postStatus
+    AND p.deleted = false
     ORDER BY p.updatedAt desc
     
 """)
