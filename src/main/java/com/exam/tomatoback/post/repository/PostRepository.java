@@ -68,10 +68,9 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     @Query("""
     SELECT p
     FROM Post p
-    JOIN PostProgress pp ON p.id = pp.post.id
     WHERE p.user.id = :userId
-    AND pp.postStatus = 'SELLING'
-    ORDER BY p.updatedAt desc
+    AND p.postProgress.postStatus = 'SELLING'
+    ORDER BY p.updatedAt DESC
     
 """)
     Page<Post> findSellingPostsByUserId(@Param("userId") Long userId, Pageable pageable);
@@ -80,7 +79,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     SELECT p
     FROM Post p
     JOIN PostProgress pp ON p.id = pp.post.id
-    WHERE pp.user.id = :userId
+    WHERE p.user.id = :userId
     AND pp.postStatus = 'END'
     ORDER BY p.updatedAt desc
     
