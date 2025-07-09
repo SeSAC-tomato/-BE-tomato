@@ -1,5 +1,6 @@
 package com.exam.tomatoback.web.controller;
 
+import com.exam.tomatoback.user.model.User;
 import com.exam.tomatoback.web.dto.like.request.*;
 import com.exam.tomatoback.like.service.LikeService;
 import com.exam.tomatoback.post.service.MyPostsService;
@@ -11,15 +12,13 @@ import com.exam.tomatoback.web.dto.mypage.request.MyPageHistoryGetRequest;
 import com.exam.tomatoback.web.dto.mypage.request.PasswordUpdateRequest;
 import com.exam.tomatoback.web.dto.mypage.request.UserUpdateRequest;
 import com.exam.tomatoback.web.dto.like.response.CartGetResponse;
-import com.exam.tomatoback.web.dto.mypage.response.MyPageHistoryResponse;
-import com.exam.tomatoback.web.dto.mypage.response.PasswordUpdatedResponse;
-import com.exam.tomatoback.web.dto.mypage.response.UserResponse;
-import com.exam.tomatoback.web.dto.mypage.response.UserUpdatedResponse;
+import com.exam.tomatoback.web.dto.mypage.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,6 +30,18 @@ public class MyUserController {
     private final UserService userService;
     private final LikeService likeService;
     private final MyPostsService myPostsService;
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyInfo() {
+        try {
+//            User user = userService.getCurrentUser();
+            UserInfoResponse response = userService.getCurrentUserInfo();
+            return ResponseEntity.ok(CommonResponse.success(response));
+        } catch (Exception e) {            
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
     @GetMapping("/{userId}/profile")
     public ResponseEntity<?> getUserById(
@@ -62,25 +73,25 @@ public class MyUserController {
     public ResponseEntity<?> getCartById(
             @PathVariable Long userId,
             @RequestParam(value = "currentPage", required = false, defaultValue = "0") Integer currentPage,
-            @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
-            @RequestParam(value = "likeSort", required = false, defaultValue = "LIKE_CREATED_AT") String likeSortStr
+            @RequestParam(value = "size", required = false, defaultValue = "12") Integer size,
+            @RequestParam(value = "likeSort", required = false, defaultValue = "LIKE_CREATED_AT") LikeSort likeSort
     ){
 
-        LikeSort likeSort;
-        try {
-            likeSort = LikeSort.valueOf(likeSortStr);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 정렬 기준입니다.");
-        }
+//        LikeSort likeSort;
+//        try {
+//            likeSort = LikeSort.valueOf(likeSortStr);
+//        } catch (IllegalArgumentException e) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 정렬 기준입니다.");
+//        }
+//
+//
+//        CartGetRequest request = CartGetRequest.builder()
+//                .currentPage(currentPage)
+//                .size(size)
+//                .likeSort(likeSort)
+//                .build();
 
-
-        CartGetRequest request = CartGetRequest.builder()
-                .currentPage(currentPage)
-                .size(size)
-                .likeSort(likeSort)
-                .build();
-
-        CartGetResponse response = likeService.getCartByUserId(userId, request);
+        CartGetResponse response = likeService.getCartByUserId(userId, currentPage, size, likeSort);
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 
@@ -94,9 +105,9 @@ public class MyUserController {
     public ResponseEntity<?> getMyPosts(
             @PathVariable Long userId,
             @RequestParam(value = "currentSellingPage", required = false, defaultValue = "0") Integer currentSellingPage,
-            @RequestParam(value = "sellingSize", required = false, defaultValue = "10") Integer sellingSize,
+            @RequestParam(value = "sellingSize", required = false, defaultValue = "12") Integer sellingSize,
             @RequestParam(value = "currentSoldPage", required = false, defaultValue = "0") Integer currentSoldPage,
-            @RequestParam(value = "soldSize", required = false, defaultValue = "10") Integer soldSize
+            @RequestParam(value = "soldSize", required = false, defaultValue = "12") Integer soldSize
 
     ) {
         MyPageHistoryGetRequest request = MyPageHistoryGetRequest.builder()

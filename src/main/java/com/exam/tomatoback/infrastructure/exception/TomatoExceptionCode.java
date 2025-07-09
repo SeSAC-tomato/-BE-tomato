@@ -103,6 +103,10 @@ public enum TomatoExceptionCode {
       HttpStatus.BAD_REQUEST,
       "TOMATO_USER_005",
       "요청으로 보낸 userId와 로그인된 유저의 userId가 일치하지 않습니다."
+  ), ADDRESS_NOT_FOUND (
+          HttpStatus.NOT_FOUND,
+          "TOMATO_USER_006",
+          "해당 주소가 없습니다."
   ), POSTS_NOT_FOUND_IN_MYPAGE(
       HttpStatus.NOT_FOUND,
       "TOMATO_LIKE_001",
@@ -115,6 +119,10 @@ public enum TomatoExceptionCode {
       HttpStatus.NOT_FOUND,
       "TOMATO_LIKE_003",
       "해당 userId와 postId로 존재하는 Like가 없습니다."
+  ), LIKESORT_NOT_FOUND(
+          HttpStatus.NOT_FOUND,
+          "TOMATO_LIKE_004",
+          "LIKESORT 값이 잘못되었습니다."
   ), INVALID_VERIFY_TOKEN(
       HttpStatus.BAD_REQUEST,
       "TOMATO_AUTH_009",

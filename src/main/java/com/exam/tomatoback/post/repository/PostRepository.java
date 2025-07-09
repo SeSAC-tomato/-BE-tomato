@@ -29,8 +29,9 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     @Query("""
     SELECT l.post FROM Like l
     WHERE l.user.id = :userId
+    ORDER BY l.post.updatedAt DESC
 """)
-    Page<Post> findLikedPosts(@Param("userId") Long userId, Pageable pageable);
+    Page<Post> findLikedPostsOrderByPostUpdatedAt(@Param("userId") Long userId, Pageable pageable);
 
     @Query("""
     SELECT l.post FROM Like l
@@ -79,7 +80,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     FROM Post p
     JOIN PostProgress pp ON p.id = pp.post.id
     WHERE pp.user.id = :userId
-    AND pp.postStatus = 'SELLING'
+    AND pp.postStatus = 'END'
     ORDER BY p.updatedAt desc
     
 """)

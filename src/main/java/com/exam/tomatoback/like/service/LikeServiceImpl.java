@@ -31,20 +31,27 @@ public class LikeServiceImpl implements LikeService {
     private final LikeRepository likeRepository;
 
     @Override
-    public CartGetResponse getCartByUserId(Long userId, CartGetRequest request) {
+    public CartGetResponse getCartByUserId(Long userId, Integer currentPage, Integer size, LikeSort likeSort){
+
 //        if (!currentUser.getId().equals(userId)) { throw new TomatoException(TomatoExceptionCode.USER_MISMATCH_IN_MYPAGE);}
+        CartGetRequest request = CartGetRequest.builder()
+                .currentPage(currentPage)
+                .size(size)
+                .likeSort(likeSort)
+                .build();
 
         Pageable pageable = PageRequest.of(request.getCurrentPage(), request.getSize());
         Page<Post> posts;
-        LikeSort sort = request.getLikeSort();
+
+
 
         // 분기: 정렬 방식에 따라 posts만 다르게 가져옴
-        switch (sort) {
+        switch (request.getLikeSort()) {
             case LIKE_CREATED_AT -> posts = postRepository.findLikedPostsOrderByLikedAt(userId, pageable);
             case POPULARITY -> posts = postRepository.findLikedPostsOrderByPostLikeCountDesc(userId, pageable);
-            case POST_CREATED_AT -> {
-                pageable = PageRequest.of(request.getCurrentPage(), request.getSize(), Sort.by(Sort.Direction.DESC, sort.getFieldPath()));
-                posts = postRepository.findLikedPosts(userId, pageable);
+            case POST_UPDATED_AT -> {
+                pageable = PageRequest.of(request.getCurrentPage(), request.getSize(), Sort.by(Sort.Direction.DESC, "updatedAt"));
+                posts = postRepository.findLikedPostsOrderByPostUpdatedAt(userId, pageable);
             }
             case PRICE -> posts = postRepository.findLikedPostsOrderByPrice(userId, pageable);
             default -> throw new TomatoException(TomatoExceptionCode.INVALID_SORT_OPTION_IN_MYPAGE);
@@ -62,7 +69,7 @@ public class LikeServiceImpl implements LikeService {
                 .totalPages(posts.getTotalPages())
                 .size(posts.getSize())
                 .totalElements(posts.getTotalElements())
-                .likeSort(sort)
+                .likeSort(likeSort)
                 .content(content)
                 .build();
     }
@@ -86,7 +93,8 @@ public class LikeServiceImpl implements LikeService {
                             .map(Image::getUrl)
                             .orElse(null);
 
-                    return CartPost.builder()
+                    CartPost cartPost = CartPost.builder()
+                            .postId(post.getId())
                             .title(post.getTitle())
                             .price(post.getPrice())
                             .img(imageUrl)
@@ -95,6 +103,10 @@ public class LikeServiceImpl implements LikeService {
                             .postStatus(post.getPostProgress().getPostStatus())
                             .productCategory(post.getProductCategory())
                             .build();
+                    
+                    // System.out.println("Created CartPost with postId: " + cartPost.getPostId() + ", title: " + cartPost.getTitle());
+                    
+                    return cartPost;
                 })
                 .toList();
     }

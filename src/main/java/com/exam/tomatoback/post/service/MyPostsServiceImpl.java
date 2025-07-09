@@ -68,6 +68,7 @@ public class MyPostsServiceImpl implements MyPostsService {
                             .orElse(null);
 
                     return MyPost.builder()
+                            .postId(post.getId())
                             .title(post.getTitle())
                             .price(post.getPrice())
                             .img(imageUrl)

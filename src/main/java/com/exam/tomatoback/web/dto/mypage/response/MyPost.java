@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class MyPost {
 
+        private Long postId;
         private String title;
         private Integer price;
         private String img;
