@@ -30,4 +30,7 @@ public final class Constants {
 
     // 챗 이미지 저장
     public static final String CHAT_IMAGE_DIR = "./uploads/chat";
+
+    //======== 이미지 저장 경로 ==========
+    public static final String POST_IMAGE_DIR = "./uploads/images";
 }

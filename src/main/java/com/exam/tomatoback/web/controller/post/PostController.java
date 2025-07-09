@@ -1,5 +1,6 @@
-package com.exam.tomatoback.web.controller;
+package com.exam.tomatoback.web.controller.post;
 
+import com.exam.tomatoback.post.repository.AddressRepository;
 import com.exam.tomatoback.post.service.PostService;
 import com.exam.tomatoback.web.dto.common.CommonResponse;
 import com.exam.tomatoback.web.dto.post.post.PostCreateRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final AddressRepository addressRepository;
 
     //Post전체조회
     @GetMapping
@@ -36,7 +38,6 @@ public class PostController {
     }
 
     //Post개별조회
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable Long id) {
         return ResponseEntity.ok(CommonResponse.success(postService.getPostByIdDeleteFalse(id)));
@@ -46,11 +47,7 @@ public class PostController {
     @PostMapping
     public ResponseEntity<?> createPost(
             @RequestBody PostCreateRequest postCreateRequest
-//            @RequestPart("postRequest") PostCreateRequest postCreateRequest,
-//            @RequestPart(name="imageFiles", required=true) List<MultipartFile> imageFiles,
-//            @RequestPart(name="imageMetadata",required=true ) List<ImageMetadataRequest> imageMetadatas
     ){
-//      PostResponse postResponse = postService.createPost(postCreateRequest, imageFiles, imageMetadatas);
         PostResponse postResponse = postService.createPost(postCreateRequest);
         return ResponseEntity.ok(CommonResponse.success(postResponse));
     }
@@ -81,8 +78,14 @@ public class PostController {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
-    @PostMapping("{userId}/{postId}/cart")
+
+    @PostMapping("{postId}/cart")
     public ResponseEntity<?> setFavorite(@PathVariable Long postId){
         return ResponseEntity.ok(CommonResponse.success(postService.setFavorite(postId)));
+    }
+
+    @GetMapping("region")
+    public ResponseEntity<?> getRegionInfo(){
+        return ResponseEntity.ok(CommonResponse.success(postService.getAllDongs()));
     }
 }

@@ -13,7 +13,7 @@ public class PostPageRequest {
     private Integer size;
     private String keyword;
     private ProductCategory productCategory;
-//    private String region;
+    private String region;
     private Boolean selling;
     private Integer minPrice;
     private Integer maxPrice;

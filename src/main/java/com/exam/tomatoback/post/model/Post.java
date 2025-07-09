@@ -29,7 +29,7 @@ public class Post {
     @Column(nullable = false)
     private Integer price;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(nullable = false)

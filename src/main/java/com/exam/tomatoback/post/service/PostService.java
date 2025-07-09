@@ -2,21 +2,29 @@ package com.exam.tomatoback.post.service;
 
 import com.exam.tomatoback.infrastructure.exception.TomatoException;
 import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
+import com.exam.tomatoback.infrastructure.util.Constants;
 import com.exam.tomatoback.like.model.Like;
 import com.exam.tomatoback.like.repository.LikeRepository;
+import com.exam.tomatoback.post.model.Image;
 import com.exam.tomatoback.post.model.Post;
 import com.exam.tomatoback.post.model.PostProgress;
 import com.exam.tomatoback.post.model.PostStatus;
+import com.exam.tomatoback.post.repository.AddressRepository;
+import com.exam.tomatoback.post.repository.ImageRepository;
 import com.exam.tomatoback.post.repository.PostProgressRepository;
+import com.exam.tomatoback.user.model.Address;
 import com.exam.tomatoback.user.model.User;
 
 import com.exam.tomatoback.post.repository.PostRepository;
 import com.exam.tomatoback.user.repository.UserRepository;
 
 import com.exam.tomatoback.web.dto.like.request.LikeResponse;
+import com.exam.tomatoback.web.dto.post.image.ImageCreateRequest;
 import com.exam.tomatoback.web.dto.post.post.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,40 +43,83 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-//    private final ImageRepository imageRepository;
-//    private final ResourceLoader resourceLoader;
+    private final ImageRepository imageRepository;
     private final LikeRepository likeRepository;
     private final PostProgressRepository postProgressRepository;
-
-//    @Value("${file.upload.dir}")
-//    private String uploadDir;
-//    private static final String IMAGE_BASE_URL_PATH = "/upload/images/";
+    private final AddressRepository addressRepository;
 
     //Post 전체조회 (소프트 삭제 제외)
-    public PostPageResponse getAllPostDeleteFalse(Pageable pageable) {
+    public PostPageResponseWithImageAndIsLiked getAllPostDeleteFalse(Pageable pageable) {
         Page<Post> postPage = postRepository.findAllByDeletedFalse(pageable);
-        return PostPageResponse.from(postPage);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isLogin = authentication != null && authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken);
+        if (isLogin) {
+           Long currentUserId = getCurrentUser().getId();
+           List<Long> postIds = postPage.getContent().stream().map(Post::getId).toList();
+           Set<Long> likedPostIds = likeRepository.findLikedPostIds(currentUserId, postIds);
+           List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
+               .map(post -> {
+                Boolean isLiked = likedPostIds.contains(post.getId());
+                return PostResponseWithImageAndIsLiked.from(post, isLiked);
+               }).toList();
+           return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
+        } else {
+           List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
+                .map(post -> {
+                    Boolean isLiked = false;
+                    return PostResponseWithImageAndIsLiked.from(post, isLiked);
+                }).toList();
+        return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
+        }
     }
 
     //Post 일부조회 (소프트삭제 제외)
-    public PostPageResponse getSomePostDeleteFalse(PostPageRequest postPageRequest, Pageable pageable) {
+    public PostPageResponseWithImageAndIsLiked getSomePostDeleteFalse(PostPageRequest postPageRequest, Pageable pageable) {
         Page<Post> postPage = postRepository.searchWithFiltersDeleteFalse(postPageRequest, pageable);
-        return PostPageResponse.from(postPage);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isLogin = authentication != null && authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken);
+        if (isLogin) {
+            Long currentUserId = getCurrentUser().getId();
+            List<Long> postIds = postPage.getContent().stream().map(Post::getId).toList();
+            Set<Long> likedPostIds = likeRepository.findLikedPostIds(currentUserId, postIds);
+            List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
+                    .map(post -> {
+                        Boolean isLiked = likedPostIds.contains(post.getId());
+                        return PostResponseWithImageAndIsLiked.from(post, isLiked);
+                    }).toList();
+            return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
+        } else {
+            List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
+                    .map(post -> {
+                        Boolean isLiked = false;
+                        return PostResponseWithImageAndIsLiked.from(post, isLiked);
+                    }).toList();
+            return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
+        }
     }
 
     //ID로 조회 (소프트 삭제제외)
     public PostResponseWithOwner getPostByIdDeleteFalse(Long id) {
-        return postRepository.findByIdAndDeletedFalse(id).map(PostResponseWithOwner::from)
-                .orElseThrow(() -> new TomatoException(
-                        TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
+        Post post = postRepository.findByIdAndDeletedFalse(id).orElseThrow(() -> new TomatoException(
+                TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isLogin = authentication != null && authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken);
+        if (isLogin) {
+            Long currentUserId = getCurrentUser().getId();
+            Boolean isLiked = likeRepository.findByUserIdAndPostId(currentUserId,id).isEmpty();
+            return PostResponseWithOwner.from(post, isLiked);
+        } else {
+            Boolean isLiked = false;
+            return PostResponseWithOwner.from(post, isLiked);
+        }
     }
 
     //Post 생성
     @Transactional
-    public PostResponse createPost(PostCreateRequest postCreateRequest
-//                                   ,List<MultipartFile> imageFiles,
-//                                   List<ImageMetadataRequest> imageMetadatas
-    ) {
+    public PostResponse createPost(PostCreateRequest postCreateRequest) {
 
         //DB로 보낼 Post를 생성 (User설정 후 커밋대기)
         User currentUser = getCurrentUser();
@@ -78,61 +131,30 @@ public class PostService {
                 .post(savedPost)
                 .postStatus(PostStatus.SELLING)
                 .build();
-        System.out.println("✅ 초기 상태 (빌더 생성 후): " + initialPostProgress.getPostStatus());
         initialPostProgress.setPost(savedPost);
         postProgressRepository.save(initialPostProgress);
         post.setPostProgress(initialPostProgress);
         Post finalPost = postRepository.save(post);
-
-        //이미지 처리
-//        if (imageFiles == null || imageFiles.isEmpty()) {
-//            throw new TomatoException(TomatoExceptionCode.IMAGE_NOT_FOUND);
-//        }
-//        if (imageMetadatas == null || imageMetadatas.isEmpty()) {
-//            throw new TomatoException(TomatoExceptionCode.MAIN_IMAGE_NOT_FOUND);
-//        }
 //
-//        if(imageFiles.size() != imageMetadatas.size()){
-//            throw new TomatoException(TomatoExceptionCode.IMAGE_INFO_NOT_MATCH);
-//        }
-//
-//        Map<String, ImageMetadataRequest> imageMetadataMap = imageMetadatas
-//                .stream()
-//                .collect(Collectors.toMap(ImageMetadataRequest::getOriginalFileName, metadata -> metadata));
-//
-//        List<Image> imagesToSave = new ArrayList<>();
-//
-//        for (int i = 0; i < imageFiles.size(); i++) {
-//            MultipartFile file = imageFiles.get(i);
-//            String uuid = UUID.randomUUID().toString();
-//            String originalNameFromMultipart = file.getOriginalFilename();
-//            String originalNameSafe = (originalNameFromMultipart != null) ? originalNameFromMultipart : "unknown_file";
-//            String extension = "";
-//            if (originalNameSafe.lastIndexOf(".") != -1) {
-//                extension = originalNameSafe.substring(originalNameSafe.lastIndexOf("."));
-//            }
-//
-//            String savedFileName = uuid + extension;
-//            Path fileSavePath = Paths.get(uploadDir, savedFileName);
-//
-//            try{
-//                Files.copy(file.getInputStream(), fileSavePath);
-//            }catch (IOException e){
-//                throw new TomatoException(TomatoExceptionCode.IMAGE_PROCESS_FAILURE);
-//            }
-//
-//            boolean isMainBoolean = ( i == 0 );
-//            Image image = Image.builder()
-//                    .url(IMAGE_BASE_URL_PATH)
-//                    .savedName(savedFileName)
-//                    .originalName(originalNameSafe)
-//                    .mainImage(isMainBoolean)
-//                    .post(savedPost)
-//                    .build();
-//
-//            imagesToSave.add(image);
-//        }
-//        imageRepository.saveAll(imagesToSave);
+        if (postCreateRequest.getImageInfo() != null && !postCreateRequest.getImageInfo().isEmpty()) {
+            List<Image> imagesToSave = new ArrayList<>();
+            for (ImageCreateRequest imageRequest : postCreateRequest.getImageInfo()) {
+                // Image 엔티티 생성
+                String savedName = imageRequest.getSavedName();
+                String originalName = imageRequest.getOriginalName();
+                Boolean mainImage = imageRequest.getMainImage();
+                String url = Constants.POST_IMAGE_DIR;
+                Image postImage = Image.builder()
+                        .savedName(imageRequest.getSavedName())
+                        .originalName(imageRequest.getOriginalName())
+                        .mainImage(imageRequest.getMainImage())
+                        .post(finalPost)
+                        .url(url)
+                        .build();
+                imagesToSave.add(postImage);
+            }
+            imageRepository.saveAll(imagesToSave);
+        }
         return PostResponse.from(finalPost);
     }
 
@@ -182,12 +204,12 @@ public class PostService {
         return PostResponse.from(postRepository.save(pullPost));
     }
 
-
-
     //User정보 조회
     public User getCurrentUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null ||
+                !authentication.isAuthenticated() ||
+                authentication instanceof AnonymousAuthenticationToken) {
             throw new TomatoException(TomatoExceptionCode.USER_NOT_FOUND);
         }
         Object principal = authentication.getPrincipal();
@@ -227,6 +249,17 @@ public class PostService {
             Like savedLike = likeRepository.save(newLike);
             return LikeResponse.from(savedLike, true);
         }
+    }
+
+    public RegionResponse getAllDongs(){
+        List<String> dongs = addressRepository.findAll().stream()
+                .map(Address::getDong)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        return RegionResponse.builder()
+                .regions(dongs)
+                .build();
     }
 
 }
