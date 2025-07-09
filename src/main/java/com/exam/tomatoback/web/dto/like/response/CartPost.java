@@ -2,6 +2,7 @@ package com.exam.tomatoback.web.dto.like.response;
 
 import com.exam.tomatoback.post.model.ProductCategory;
 import com.exam.tomatoback.post.model.PostStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class CartPost {
-
+        @JsonProperty("postId")
+        private Long postId;
         private String title;
         private Integer price;
         private String img;

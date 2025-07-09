@@ -1,6 +1,7 @@
 package com.exam.tomatoback.user.service;
 
 import com.exam.tomatoback.user.model.User;
+import com.exam.tomatoback.web.dto.mypage.response.UserInfoResponse;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.exam.tomatoback.web.dto.mypage.request.PasswordUpdateRequest;
 import com.exam.tomatoback.web.dto.mypage.request.UserUpdateRequest;
@@ -37,4 +38,6 @@ public interface UserService {
 
 
     User getUserByUserId(long userId);
+
+    UserInfoResponse getCurrentUserInfo();
 }
