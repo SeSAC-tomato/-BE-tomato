@@ -27,7 +27,6 @@ public class PostQueryRepositoryImpl implements PostQueryRepository{
     private final JPAQueryFactory queryFactory;
     private final QPostProgress postProgress = QPostProgress.postProgress;
 
-    @EntityGraph(attributePaths = {"images", "postProgress", "user.address"})
     @Override
     public Page<Post> searchWithFiltersDeleteFalse(PostPageRequest request, Pageable pageable){
         QPost post = QPost.post;
@@ -60,7 +59,9 @@ public class PostQueryRepositoryImpl implements PostQueryRepository{
         JPAQuery<Post> query = queryFactory.selectFrom(post)
                 .leftJoin(post.user,user)
                 .leftJoin(user.address, address)
-                .leftJoin(post.postProgress, postProgress).where(builder);
+                .leftJoin(post.postProgress, postProgress).fetchJoin()
+                .where(builder);
+
         long total = queryFactory.select(post.count())
                 .from(post)
                 .leftJoin(post.user, user)
