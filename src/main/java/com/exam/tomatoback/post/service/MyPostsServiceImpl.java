@@ -64,7 +64,7 @@ public class MyPostsServiceImpl implements MyPostsService {
                     String imageUrl = post.getImages().stream()
                             .filter(Image::getMainImage)
                             .findFirst()
-                            .map(Image::getUrl)
+                            .map(img -> "/api/v1/post/images/" + img.getSavedName())
                             .orElse(null);
 
                     return MyPost.builder()
