@@ -20,6 +20,9 @@ import com.exam.tomatoback.user.repository.UserRepository;
 
 import com.exam.tomatoback.web.dto.like.request.LikeResponse;
 import com.exam.tomatoback.web.dto.post.image.ImageCreateRequest;
+import com.exam.tomatoback.web.dto.post.image.ImageReponseShort;
+import com.exam.tomatoback.web.dto.post.image.ImageResponse;
+import com.exam.tomatoback.web.dto.post.image.ImageUpdateRequest;
 import com.exam.tomatoback.web.dto.post.post.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,21 +57,29 @@ public class PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isLogin = authentication != null && authentication.isAuthenticated() &&
                 !(authentication instanceof AnonymousAuthenticationToken);
+        List<Long> postIds = postPage.getContent().stream().map(Post::getId).toList();
+        List<Object []> result = likeRepository.findLikesByPostIds(postIds);
+        Map<Long, Integer> PostLikeCountMap = result.stream().collect(
+                Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> ((Long) row[1]).intValue()
+                ));
         if (isLogin) {
            Long currentUserId = getCurrentUser().getId();
-           List<Long> postIds = postPage.getContent().stream().map(Post::getId).toList();
            Set<Long> likedPostIds = likeRepository.findLikedPostIds(currentUserId, postIds);
            List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
                .map(post -> {
                 Boolean isLiked = likedPostIds.contains(post.getId());
-                return PostResponseWithImageAndIsLiked.from(post, isLiked);
+                Integer numberOfLikes = PostLikeCountMap.getOrDefault(post.getId(), 0);
+                return PostResponseWithImageAndIsLiked.from(post, isLiked, numberOfLikes);
                }).toList();
            return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
         } else {
            List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
                 .map(post -> {
                     Boolean isLiked = false;
-                    return PostResponseWithImageAndIsLiked.from(post, isLiked);
+                    Integer numberOfLikes = PostLikeCountMap.getOrDefault(post.getId(),0);
+                    return PostResponseWithImageAndIsLiked.from(post, isLiked,numberOfLikes);
                 }).toList();
         return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
         }
@@ -80,21 +91,29 @@ public class PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isLogin = authentication != null && authentication.isAuthenticated() &&
                 !(authentication instanceof AnonymousAuthenticationToken);
+        List<Long> postIds = postPage.getContent().stream().map(Post::getId).toList();
+        List<Object []> result = likeRepository.findLikesByPostIds(postIds);
+        Map<Long, Integer> PostLikeCountMap = result.stream().collect(
+                Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> ((Long) row[1]).intValue()
+                ));
         if (isLogin) {
             Long currentUserId = getCurrentUser().getId();
-            List<Long> postIds = postPage.getContent().stream().map(Post::getId).toList();
             Set<Long> likedPostIds = likeRepository.findLikedPostIds(currentUserId, postIds);
             List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
                     .map(post -> {
                         Boolean isLiked = likedPostIds.contains(post.getId());
-                        return PostResponseWithImageAndIsLiked.from(post, isLiked);
+                        Integer numberOfLikes = PostLikeCountMap.getOrDefault(post.getId(),0);
+                        return PostResponseWithImageAndIsLiked.from(post, isLiked, numberOfLikes);
                     }).toList();
             return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
         } else {
             List<PostResponseWithImageAndIsLiked> postDTOs = postPage.getContent().stream()
                     .map(post -> {
                         Boolean isLiked = false;
-                        return PostResponseWithImageAndIsLiked.from(post, isLiked);
+                        Integer numberOfLikes = PostLikeCountMap.getOrDefault(post.getId(),0);
+                        return PostResponseWithImageAndIsLiked.from(post, isLiked, numberOfLikes);
                     }).toList();
             return PostPageResponseWithImageAndIsLiked.from(postPage, postDTOs);
         }
@@ -109,7 +128,8 @@ public class PostService {
                 !(authentication instanceof AnonymousAuthenticationToken);
         if (isLogin) {
             Long currentUserId = getCurrentUser().getId();
-            Boolean isLiked = likeRepository.findByUserIdAndPostId(currentUserId,id).isEmpty();
+            Set<Long> likedPostIds = likeRepository.findLikedPostIds(currentUserId, Collections.singletonList(post.getId()));
+            Boolean isLiked = likedPostIds.contains(post.getId());
             return PostResponseWithOwner.from(post, isLiked);
         } else {
             Boolean isLiked = false;
@@ -139,10 +159,6 @@ public class PostService {
         if (postCreateRequest.getImageInfo() != null && !postCreateRequest.getImageInfo().isEmpty()) {
             List<Image> imagesToSave = new ArrayList<>();
             for (ImageCreateRequest imageRequest : postCreateRequest.getImageInfo()) {
-                // Image 엔티티 생성
-                String savedName = imageRequest.getSavedName();
-                String originalName = imageRequest.getOriginalName();
-                Boolean mainImage = imageRequest.getMainImage();
                 String url = Constants.POST_IMAGE_DIR;
                 Image postImage = Image.builder()
                         .savedName(imageRequest.getSavedName())
@@ -161,14 +177,31 @@ public class PostService {
 
     //Post수정
     @Transactional
-    public PostResponse updatePost(Long id, PostUpdateRequest request){
+    public PostResponse updatePost(Long id, PostUpdateRequest postUpdateRequest) {
+        //update할 Post를 DB에서 찾기
         Post updatePost = postRepository.findByIdAndDeletedFalse(id).orElseThrow(() -> new TomatoException(
                 TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
-        updatePost.setTitle(request.getTitle());
-        updatePost.setPrice(request.getPrice());
-        updatePost.setContent(request.getContent());
-        updatePost.setProductCategory(request.getProductCategory());
-        updatePost.setProductCategory(request.toDomain().getProductCategory());
+        //Update할 내용에 이미지 배열을 (기존 image DB의 모든 관련된 값을 지우고 ) 새 배열로 추가
+        if(postUpdateRequest.getImageInfo() != null && !postUpdateRequest.getImageInfo().isEmpty()) {
+            List<Image> imagesToSave = new ArrayList<>(); // 저장할 이미지 배열
+            imageRepository.deleteAllByPost(updatePost);
+            for (ImageUpdateRequest imageRequest : postUpdateRequest.getImageInfo()) {
+                String url = Constants.POST_IMAGE_DIR;
+                Image postImage = Image.builder()
+                        .savedName(imageRequest.getSavedName())
+                        .originalName(imageRequest.getOriginalName())
+                        .mainImage(imageRequest.getMainImage())
+                        .post(updatePost)
+                        .url(url)
+                        .build();
+                imagesToSave.add(postImage);
+            }
+            imageRepository.saveAll(imagesToSave);
+        }
+        updatePost.setTitle(postUpdateRequest.getTitle());
+        updatePost.setPrice(postUpdateRequest.getPrice());
+        updatePost.setContent(postUpdateRequest.getContent());
+        updatePost.setProductCategory(postUpdateRequest.getProductCategory());
         return PostResponse.from(postRepository.save(updatePost));
     }
 
@@ -181,7 +214,7 @@ public class PostService {
     }
 
     //Post_Progress
-@Transactional
+    @Transactional
     public PostResponse progressPost(Long id){
         Post targetPost = postRepository.findByIdAndDeletedFalse(id).orElseThrow(() -> new TomatoException(
                 TomatoExceptionCode.ASSOCIATED_POST_NOT_FOUND));
@@ -216,7 +249,7 @@ public class PostService {
         if (principal instanceof UserDetails) {
             String username = ((UserDetails) principal).getUsername();
 
-            // UserRepository를 사용하여 DB에서 실제 User 엔티티를 조회합니다.
+            // UserRepository를 사용하여 DB에서 실제 User 엔티티를 조회
             return userRepository.findByEmail(username)
                     .orElseThrow(() -> new TomatoException(TomatoExceptionCode.USER_NOT_FOUND));
         } else {
@@ -261,5 +294,4 @@ public class PostService {
                 .regions(dongs)
                 .build();
     }
-
 }

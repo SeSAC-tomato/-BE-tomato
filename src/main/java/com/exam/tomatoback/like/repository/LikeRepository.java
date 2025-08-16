@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,5 +21,6 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
     @Query("SELECT l.post.id FROM Like l WHERE l.user.id = :userId AND l.post.id IN :postIds")
     Set<Long> findLikedPostIds(@Param("userId") Long userId, @Param("postIds") List<Long> postIds);
 
+    @Query("SELECT l.post.id, COUNT (l) FROM Like l WHERE l.post.id IN :postIds GROUP BY l.post.id")
+     List<Object[]> findLikesByPostIds(@Param("postIds") List<Long> postIds);
 }
-

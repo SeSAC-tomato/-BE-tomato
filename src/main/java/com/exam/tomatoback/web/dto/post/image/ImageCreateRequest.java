@@ -1,7 +1,6 @@
 package com.exam.tomatoback.web.dto.post.image;
 
 import com.exam.tomatoback.post.model.Image;
-import com.exam.tomatoback.post.model.Post;
 import lombok.*;
 
 

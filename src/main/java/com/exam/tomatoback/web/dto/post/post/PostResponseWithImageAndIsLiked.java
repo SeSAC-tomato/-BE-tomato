@@ -25,9 +25,10 @@ public class PostResponseWithImageAndIsLiked {
     private String region;
     private ImageReponseShort mainImage;
     private Boolean isLiked;
+    private Integer numberOfLikes;
 
     // Post 엔티티를 PostResponseShort DTO로 변환하는 팩토리 메서드
-    public static PostResponseWithImageAndIsLiked from(Post post, Boolean isLiked) {
+    public static PostResponseWithImageAndIsLiked from(Post post, Boolean isLiked, Integer numberOfLikes) {
         // Post 엔티티에 연결된 이미지 리스트에서 mainImage가 true인 첫 번째 이미지를 찾습니다.
         ImageReponseShort mainImageSet = null;
         PostLikeResponse likesSet = null;
@@ -49,6 +50,7 @@ public class PostResponseWithImageAndIsLiked {
                 .mainImage(mainImageSet)
                 .region(post.getUser().getAddress().getDong())
                 .isLiked(isLiked)
+                .numberOfLikes(numberOfLikes)
                 .build();
     }
 }

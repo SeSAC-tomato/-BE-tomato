@@ -1,11 +1,8 @@
 package com.exam.tomatoback.web.dto.post.image;
 
-import com.exam.tomatoback.infrastructure.exception.TomatoException;
-import com.exam.tomatoback.infrastructure.exception.TomatoExceptionCode;
 import com.exam.tomatoback.post.model.Image;
 import lombok.*;
 
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -25,6 +22,7 @@ public class ImageReponseShort {
                 .mainImage(image.getMainImage())
                 .url(image.getUrl())
                 .savedName(image.getSavedName())
+                .originalName(image.getOriginalName())
                 .build();
     }
 }

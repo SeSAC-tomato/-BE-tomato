@@ -52,7 +52,7 @@ public class PostController {
         return ResponseEntity.ok(CommonResponse.success(postResponse));
     }
 
-    //PostUpdate
+    //포스트 수정
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePost(
             @PathVariable Long id,
@@ -88,4 +88,5 @@ public class PostController {
     public ResponseEntity<?> getRegionInfo(){
         return ResponseEntity.ok(CommonResponse.success(postService.getAllDongs()));
     }
+
 }
