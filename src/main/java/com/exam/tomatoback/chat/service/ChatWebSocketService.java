@@ -138,7 +138,7 @@ public class ChatWebSocketService {
     public void whenEventBook(Room room, User sender, Post post) {
         Optional<RoomProgress> byId = roomProgressRepository.findById(room.getId());
         if (byId.isPresent()) {
-            // 예약 이벤트 받았고, 이미 RoomProgress 있음 -> 예약 수락함
+            // 예약 이벤트 받았고, 이미 RoomProgress 있음 -> 예약 수락함 (판매자)
             RoomProgress roomProgress = byId.get();
             RoomProgressEnum roomProgressEnum = roomProgress.getRoomProgress();
 
@@ -150,9 +150,11 @@ public class ChatWebSocketService {
                 // 포스트 예약 상태로  여기서 바꾸면 될 듯 -> 추가 예정
                 PostProgress postProgress = post.getPostProgress();
                 postProgress.setPostStatus(PostStatus.BOOKED);
+                User seller = room.getSeller();
+                User buyer = room.getBuyer();
+                postProgress.setUser(sender.getId().equals(seller.getId()) ? buyer : seller);
 
                 postProgressRepository.save(postProgress);
-                // 될 지 모르겠음
 
             } else {
                 System.out.println("잘못된 코드 흐름임");
@@ -183,7 +185,6 @@ public class ChatWebSocketService {
             postProgress.setPostStatus(PostStatus.END);
 
             postProgressRepository.save(postProgress);
-            // 될지 모르겠음
 
 
         } else {
@@ -207,9 +208,9 @@ public class ChatWebSocketService {
             PostProgress postProgress = post.getPostProgress();
 
             postProgress.setPostStatus(PostStatus.SELLING);
+            postProgress.setUser(null);
             postProgressRepository.save(postProgress);
 
-            // 될지 모르겠음
 
         } else {
             System.out.println("잘못된 코드 흐름");

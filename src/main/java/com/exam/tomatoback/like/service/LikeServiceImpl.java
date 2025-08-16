@@ -90,7 +90,7 @@ public class LikeServiceImpl implements LikeService {
                     String imageUrl = post.getImages().stream()
                             .filter(Image::getMainImage)
                             .findFirst()
-                            .map(Image::getUrl)
+                            .map(Image::getSavedName)
                             .orElse(null);
 
                     CartPost cartPost = CartPost.builder()

@@ -37,12 +37,12 @@ public class MyPostsServiceImpl implements MyPostsService {
 
 
 
-        if (mySellingPosts.isEmpty()) {
-            throw new TomatoException(TomatoExceptionCode.SELLING_POSTS_NOT_FOUND_IN_MYPAGE);
-        }
-        if (myEndPosts.isEmpty()) {
-            throw new TomatoException(TomatoExceptionCode.END_POSTS_NOT_FOUND_IN_MYPAGE);
-        }
+//        if (mySellingPosts.isEmpty()) {
+//            throw new TomatoException(TomatoExceptionCode.SELLING_POSTS_NOT_FOUND_IN_MYPAGE);
+//        }
+//        if (myEndPosts.isEmpty()) {
+//            throw new TomatoException(TomatoExceptionCode.END_POSTS_NOT_FOUND_IN_MYPAGE);
+//        }
 
         MyPostsPageResponse sellingPosts = convertToMyPostsPageResponse(mySellingPosts);
         MyPostsPageResponse endPosts = convertToMyPostsPageResponse(myEndPosts);
@@ -64,7 +64,7 @@ public class MyPostsServiceImpl implements MyPostsService {
                     String imageUrl = post.getImages().stream()
                             .filter(Image::getMainImage)
                             .findFirst()
-                            .map(Image::getUrl)
+                            .map(img -> "/api/v1/post/images/" + img.getSavedName())
                             .orElse(null);
 
                     return MyPost.builder()
