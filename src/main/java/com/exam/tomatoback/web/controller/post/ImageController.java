@@ -27,4 +27,5 @@ public class ImageController {
                     .body("이미지 저장 중 오류가 발생했습니다.");
         }
     }
+
 }
